@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Plus, Trash2, GripHorizontal, Settings2, Palette } from "lucide-react";
+import { Plus, Trash2, GripHorizontal, Settings2, Palette, ChevronDown, Image as ImageIcon, Type, List, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -9,6 +9,21 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from "@/components/ui/command";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
@@ -16,21 +31,25 @@ import { cn } from "@/lib/utils";
 const generateId = () => Math.random().toString(36).substring(2, 9);
 
 // Types
-type CellStyle = {
+export type CellStyle = {
     backgroundColor?: string;
     color?: string;
     fontWeight?: string;
 };
 
-type Cell = {
+export type Cell = {
     id: string;
     value: string;
     style?: CellStyle;
 };
 
-type Column = {
+export type ColumnType = "text" | "select" | "image" | "icon";
+
+export type Column = {
     id: string;
     header: string;
+    type: ColumnType;
+    options?: string[]; // For 'select' type
     width?: number;
     style?: CellStyle;
 };
@@ -42,9 +61,9 @@ type Row = {
 };
 
 const INITIAL_COLUMNS: Column[] = [
-    { id: "col-1", header: "Column A" },
-    { id: "col-2", header: "Column B" },
-    { id: "col-3", header: "Column C" },
+    { id: "col-1", header: "Column A", type: "text" },
+    { id: "col-2", header: "Column B", type: "text" },
+    { id: "col-3", header: "Column C", type: "text" },
 ];
 
 const INITIAL_ROWS: Row[] = [
@@ -127,11 +146,13 @@ export function ExcelTable() {
         setActiveSheetId(newId);
     };
 
-    const addColumn = () => {
+    const addColumn = (type: ColumnType = "text") => {
         const newColId = `col-${generateId()}`;
         const newColumn: Column = {
             id: newColId,
             header: `Column ${columns.length + 1}`,
+            type,
+            options: type === "select" ? ["Option 1", "Option 2", "Option 3"] : undefined,
         };
 
         const newColumns = [...columns, newColumn];
@@ -261,9 +282,47 @@ export function ExcelTable() {
                 <Button onClick={addRow} variant="outline" className="gap-2">
                     <Plus className="w-4 h-4" /> Add Row
                 </Button>
-                <Button onClick={addColumn} variant="outline" className="gap-2">
-                    <Plus className="w-4 h-4" /> Add Column
-                </Button>
+
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button variant="outline" className="gap-2">
+                            <Plus className="w-4 h-4" /> Add Column
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-56 p-2" align="start">
+                        <div className="grid gap-2">
+                            <div className="font-medium text-sm text-muted-foreground px-2">Column Type</div>
+                            <Button
+                                variant="ghost"
+                                className="justify-start gap-2 h-9"
+                                onClick={() => addColumn("text")}
+                            >
+                                <Type className="w-4 h-4" /> Text
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                className="justify-start gap-2 h-9"
+                                onClick={() => addColumn("select")}
+                            >
+                                <List className="w-4 h-4" /> Dropdown
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                className="justify-start gap-2 h-9"
+                                onClick={() => addColumn("image")}
+                            >
+                                <ImageIcon className="w-4 h-4" /> Image
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                className="justify-start gap-2 h-9"
+                                onClick={() => addColumn("icon")}
+                            >
+                                <Sparkles className="w-4 h-4" /> Icon
+                            </Button>
+                        </div>
+                    </PopoverContent>
+                </Popover>
             </div>
 
             <div className="flex-1 border rounded-lg overflow-hidden shadow-sm bg-white dark:bg-zinc-950 flex flex-col">
@@ -343,16 +402,171 @@ export function ExcelTable() {
                                                     backgroundColor: cell?.style?.backgroundColor,
                                                 }}
                                             >
-                                                <div className="relative w-full h-full">
-                                                    <input
-                                                        className="w-full h-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none"
-                                                        value={cell?.value || ""}
-                                                        onChange={(e) =>
-                                                            updateCell(row.id, col.id, e.target.value)
-                                                        }
-                                                    />
+                                                <div className="relative w-full h-full min-h-[46px] flex items-center">
+                                                    {/* TEXT TYPE */}
+                                                    {col.type === "text" && (
+                                                        <input
+                                                            className="w-full h-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none"
+                                                            value={cell?.value || ""}
+                                                            onChange={(e) =>
+                                                                updateCell(row.id, col.id, e.target.value)
+                                                            }
+                                                        />
+                                                    )}
 
-                                                    {/* Cell Actions Popover */}
+                                                    {/* SELECT TYPE */}
+                                                    {col.type === "select" && (
+                                                        <Popover>
+                                                            <PopoverTrigger asChild>
+                                                                <button className="w-full h-full px-4 py-3 text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center justify-between group/select">
+                                                                    <span className={cn(!cell?.value && "text-zinc-400")}>
+                                                                        {cell?.value || "Select..."}
+                                                                    </span>
+                                                                    <ChevronDown className="w-3 h-3 text-zinc-300 opacity-0 group-hover/select:opacity-100" />
+                                                                </button>
+                                                            </PopoverTrigger>
+                                                            <PopoverContent className="p-0 w-[200px]" align="start">
+                                                                <Command>
+                                                                    <CommandInput placeholder="Search or create..." />
+                                                                    <CommandList>
+                                                                        <CommandEmpty className="p-2">
+                                                                            <Button
+                                                                                variant="ghost"
+                                                                                className="w-full justify-start text-sm"
+                                                                                onClick={() => {
+                                                                                    // Add new option logic
+                                                                                    const newOptions = [...(col.options || []), "New Option"];
+                                                                                    // For now, since we don't capture the input value easily in CommandEmpty without state,
+                                                                                    // let's just show existing options efficiently.
+                                                                                    // We need a proper way to add options.
+                                                                                }}
+                                                                            >
+                                                                                <Plus className="w-3 h-3 mr-2" /> Create new option
+                                                                            </Button>
+                                                                        </CommandEmpty>
+                                                                        <CommandGroup>
+                                                                            {col.options?.map((option) => (
+                                                                                <CommandItem
+                                                                                    key={option}
+                                                                                    value={option}
+                                                                                    onSelect={() => {
+                                                                                        updateCell(row.id, col.id, option);
+                                                                                    }}
+                                                                                >
+                                                                                    {option}
+                                                                                </CommandItem>
+                                                                            ))}
+                                                                        </CommandGroup>
+                                                                        <div className="p-2 border-t mt-1">
+                                                                            <div className="flex gap-2">
+                                                                                <Input
+                                                                                    placeholder="Add option..."
+                                                                                    className="h-8 text-xs"
+                                                                                    onKeyDown={(e) => {
+                                                                                        if (e.key === "Enter") {
+                                                                                            const val = e.currentTarget.value;
+                                                                                            if (val && !col.options?.includes(val)) {
+                                                                                                const newCols = columns.map(c =>
+                                                                                                    c.id === col.id
+                                                                                                        ? { ...c, options: [...(c.options || []), val] }
+                                                                                                        : c
+                                                                                                );
+                                                                                                updateActiveSheet({ columns: newCols });
+                                                                                                e.currentTarget.value = "";
+                                                                                            }
+                                                                                        }
+                                                                                    }}
+                                                                                />
+                                                                            </div>
+                                                                        </div>
+                                                                    </CommandList>
+                                                                </Command>
+                                                            </PopoverContent>
+                                                        </Popover>
+                                                    )}
+
+                                                    {/* IMAGE TYPE */}
+                                                    {col.type === "image" && (
+                                                        <Popover>
+                                                            <PopoverTrigger asChild>
+                                                                <button className="w-full h-full px-4 py-2 flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5">
+                                                                    {cell?.value ? (
+                                                                        <img
+                                                                            src={cell.value}
+                                                                            alt="Cell"
+                                                                            className="h-8 w-auto rounded object-cover shadow-sm"
+                                                                        />
+                                                                    ) : (
+                                                                        <ImageIcon className="w-4 h-4 text-zinc-300" />
+                                                                    )}
+                                                                </button>
+                                                            </PopoverTrigger>
+                                                            <PopoverContent className="p-3 w-80">
+                                                                <div className="grid gap-2">
+                                                                    <div className="space-y-1">
+                                                                        <h4 className="font-medium leading-none">Image URL</h4>
+                                                                        <p className="text-xs text-muted-foreground">
+                                                                            Paste an image URL to display.
+                                                                        </p>
+                                                                    </div>
+                                                                    <div className="flex gap-2">
+                                                                        <Input
+                                                                            defaultValue={cell?.value}
+                                                                            placeholder="https://..."
+                                                                            className="h-8"
+                                                                            onKeyDown={(e) => {
+                                                                                if (e.key === "Enter") {
+                                                                                    updateCell(row.id, col.id, e.currentTarget.value);
+                                                                                }
+                                                                            }}
+                                                                        />
+                                                                        <Button size="sm" className="h-8" onClick={(e) => {
+                                                                            // Trigger update via sibling input (hacky but works for demo) or controlled state
+                                                                            const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                                                                            updateCell(row.id, col.id, input.value);
+                                                                        }}>Save</Button>
+                                                                    </div>
+                                                                </div>
+                                                            </PopoverContent>
+                                                        </Popover>
+                                                    )}
+
+                                                    {/* ICON TYPE */}
+                                                    {col.type === "icon" && (
+                                                        <Popover>
+                                                            <PopoverTrigger asChild>
+                                                                <button className="w-full h-full px-4 py-2 flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5">
+                                                                    {/* Simple icon renderer map for demo purposes */}
+                                                                    {cell?.value === "check" && <div className="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center"><span className="text-xs">✓</span></div>}
+                                                                    {cell?.value === "alert" && <div className="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center"><span className="text-xs">!</span></div>}
+                                                                    {cell?.value === "star" && <div className="w-6 h-6 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center"><span className="text-xs">★</span></div>}
+                                                                    {!cell?.value && <Sparkles className="w-4 h-4 text-zinc-300" />}
+                                                                </button>
+                                                            </PopoverTrigger>
+                                                            <PopoverContent className="w-40 p-2">
+                                                                <div className="grid grid-cols-3 gap-2">
+                                                                    <button
+                                                                        className="w-8 h-8 rounded hover:bg-zinc-100 flex items-center justify-center text-green-600"
+                                                                        onClick={() => updateCell(row.id, col.id, "check")}
+                                                                    >✓</button>
+                                                                    <button
+                                                                        className="w-8 h-8 rounded hover:bg-zinc-100 flex items-center justify-center text-red-600"
+                                                                        onClick={() => updateCell(row.id, col.id, "alert")}
+                                                                    >!</button>
+                                                                    <button
+                                                                        className="w-8 h-8 rounded hover:bg-zinc-100 flex items-center justify-center text-yellow-600"
+                                                                        onClick={() => updateCell(row.id, col.id, "star")}
+                                                                    >★</button>
+                                                                    <button
+                                                                        className="w-8 h-8 rounded hover:bg-zinc-100 flex items-center justify-center text-zinc-400"
+                                                                        onClick={() => updateCell(row.id, col.id, "")}
+                                                                    >CLR</button>
+                                                                </div>
+                                                            </PopoverContent>
+                                                        </Popover>
+                                                    )}
+
+                                                    {/* Cell Settings Button (kept absolute) */}
                                                     <Popover>
                                                         <PopoverTrigger asChild>
                                                             <Button

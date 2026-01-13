@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Plus, Trash2, GripHorizontal, Settings2, Palette, ChevronDown, Image as ImageIcon, Type, List, Sparkles } from "lucide-react";
+import { Plus, Trash2, GripHorizontal, Settings2, Palette, ChevronDown, Image as ImageIcon, Type, List, Sparkles, X, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -16,6 +16,7 @@ import {
     CommandInput,
     CommandItem,
     CommandList,
+    CommandSeparator,
 } from "@/components/ui/command";
 import {
     Dialog,
@@ -45,11 +46,17 @@ export type Cell = {
 
 export type ColumnType = "text" | "select" | "image" | "icon";
 
+export type SelectOption = {
+    id: string;
+    label: string;
+    color: string;
+};
+
 export type Column = {
     id: string;
     header: string;
     type: ColumnType;
-    options?: string[]; // For 'select' type
+    options?: SelectOption[]; // Expanded for rich options
     width?: number;
     style?: CellStyle;
 };
@@ -101,6 +108,31 @@ const COLORS = [
     "#ffe4e6", // Rose 100
 ];
 
+const OPTION_COLORS = [
+    { label: "Red", value: "#fee2e2", text: "#ef4444" },
+    { label: "Orange", value: "#ffedd5", text: "#f97316" },
+    { label: "Amber", value: "#fef3c7", text: "#f59e0b" },
+    { label: "Yellow", value: "#fef9c3", text: "#eab308" },
+    { label: "Lime", value: "#ecfccb", text: "#84cc16" },
+    { label: "Green", value: "#dcfce7", text: "#22c55e" },
+    { label: "Emerald", value: "#d1fae5", text: "#10b981" },
+    { label: "Teal", value: "#ccfbf1", text: "#14b8a6" },
+    { label: "Cyan", value: "#cffafe", text: "#06b6d4" },
+    { label: "Sky", value: "#e0f2fe", text: "#0ea5e9" },
+    { label: "Blue", value: "#dbeafe", text: "#3b82f6" },
+    { label: "Indigo", value: "#e0e7ff", text: "#6366f1" },
+    { label: "Violet", value: "#ede9fe", text: "#8b5cf6" },
+    { label: "Purple", value: "#f3e8ff", text: "#a855f7" },
+    { label: "Fuchsia", value: "#fae8ff", text: "#d946ef" },
+    { label: "Pink", value: "#fce7f3", text: "#ec4899" },
+    { label: "Rose", value: "#ffe4e6", text: "#f43f5e" },
+    { label: "Slate", value: "#f1f5f9", text: "#64748b" },
+    { label: "Gray", value: "#e5e7eb", text: "#4b5563" },
+    { label: "Zinc", value: "#e4e4e7", text: "#52525b" },
+    { label: "Neutral", value: "#e5e5e5", text: "#525252" },
+    { label: "Stone", value: "#e7e5e4", text: "#57534e" },
+];
+
 export function ExcelTable() {
     // Types
     type Sheet = {
@@ -148,11 +180,21 @@ export function ExcelTable() {
 
     const addColumn = (type: ColumnType = "text") => {
         const newColId = `col-${generateId()}`;
+
+        let initialOptions: SelectOption[] | undefined;
+        if (type === "select") {
+            initialOptions = [
+                { id: generateId(), label: "Done", color: "#dcfce7" },
+                { id: generateId(), label: "In Progress", color: "#ffedd5" },
+                { id: generateId(), label: "To Do", color: "#f1f5f9" },
+            ];
+        }
+
         const newColumn: Column = {
             id: newColId,
             header: `Column ${columns.length + 1}`,
             type,
-            options: type === "select" ? ["Option 1", "Option 2", "Option 3"] : undefined,
+            options: initialOptions,
         };
 
         const newColumns = [...columns, newColumn];
@@ -272,6 +314,49 @@ export function ExcelTable() {
             )
         );
         setEditingSheetId(null);
+    };
+
+    // --- Select Option Logic ---
+    const addOptionToColumn = (colId: string, label: string) => {
+        const color = OPTION_COLORS[Math.floor(Math.random() * OPTION_COLORS.length)].value;
+        const newOption: SelectOption = { id: generateId(), label, color };
+
+        const newColumns = columns.map(c =>
+            c.id === colId
+                ? { ...c, options: [...(c.options || []), newOption] }
+                : c
+        );
+        updateActiveSheet({ columns: newColumns });
+    };
+
+    const updateOptionInColumn = (colId: string, optionId: string, updates: Partial<SelectOption>) => {
+        const newColumns = columns.map(c => {
+            if (c.id !== colId) return c;
+            const newOptions = c.options?.map(opt =>
+                opt.id === optionId ? { ...opt, ...updates } : opt
+            ) || [];
+            return { ...c, options: newOptions };
+        });
+        updateActiveSheet({ columns: newColumns });
+    };
+
+    const deleteOptionFromColumn = (colId: string, optionId: string) => {
+        const newColumns = columns.map(c => {
+            if (c.id !== colId) return c;
+            return { ...c, options: c.options?.filter(opt => opt.id !== optionId) };
+        });
+        // Also clear cells that had this value
+        const newRows = rows.map(r => {
+            if (r.cells[colId]?.value === optionId) {
+                return {
+                    ...r,
+                    cells: { ...r.cells, [colId]: { ...r.cells[colId], value: "" } }
+                };
+            }
+            return r;
+        });
+
+        updateActiveSheet({ columns: newColumns, rows: newRows });
     };
 
     // --- Render ---
@@ -414,76 +499,138 @@ export function ExcelTable() {
                                                         />
                                                     )}
 
-                                                    {/* SELECT TYPE */}
-                                                    {col.type === "select" && (
-                                                        <Popover>
-                                                            <PopoverTrigger asChild>
-                                                                <button className="w-full h-full px-4 py-3 text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center justify-between group/select">
-                                                                    <span className={cn(!cell?.value && "text-zinc-400")}>
-                                                                        {cell?.value || "Select..."}
-                                                                    </span>
-                                                                    <ChevronDown className="w-3 h-3 text-zinc-300 opacity-0 group-hover/select:opacity-100" />
-                                                                </button>
-                                                            </PopoverTrigger>
-                                                            <PopoverContent className="p-0 w-[200px]" align="start">
-                                                                <Command>
-                                                                    <CommandInput placeholder="Search or create..." />
-                                                                    <CommandList>
-                                                                        <CommandEmpty className="p-2">
+                                                    {/* SELECT TYPE - RICH OPTIONS */}
+                                                    {col.type === "select" && (() => {
+                                                        const selectedOption = col.options?.find(o => o.id === cell?.value);
+                                                        return (
+                                                            <Popover>
+                                                                <PopoverTrigger asChild>
+                                                                    <button className="w-full h-full px-4 py-3 text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center justify-between group/select relative">
+                                                                        {selectedOption ? (
+                                                                            <span className="px-2 py-1 rounded-md text-xs font-medium border" style={{ backgroundColor: selectedOption.color, borderColor: "transparent" }}>
+                                                                                {selectedOption.label}
+                                                                            </span>
+                                                                        ) : (
+                                                                            <span className="text-zinc-400">Select...</span>
+                                                                        )}
+                                                                        <ChevronDown className="w-3 h-3 text-zinc-300 opacity-0 group-hover/select:opacity-100 ml-auto" />
+                                                                    </button>
+                                                                </PopoverTrigger>
+                                                                <PopoverContent className="p-0 w-[240px]" align="start">
+                                                                    <div className="p-2 border-b">
+                                                                        <div className="p-2 border-b flex gap-1">
+                                                                            <Input
+                                                                                placeholder="Find or create option..."
+                                                                                className="h-8 text-xs flex-1"
+                                                                                onKeyDown={(e) => {
+                                                                                    if (e.key === "Enter") {
+                                                                                        e.stopPropagation();
+                                                                                        if (e.currentTarget.value) {
+                                                                                            addOptionToColumn(col.id, e.currentTarget.value);
+                                                                                            e.currentTarget.value = "";
+                                                                                        }
+                                                                                    }
+                                                                                }}
+                                                                            />
                                                                             <Button
+                                                                                size="icon"
                                                                                 variant="ghost"
-                                                                                className="w-full justify-start text-sm"
-                                                                                onClick={() => {
-                                                                                    // Add new option logic
-                                                                                    const newOptions = [...(col.options || []), "New Option"];
-                                                                                    // For now, since we don't capture the input value easily in CommandEmpty without state,
-                                                                                    // let's just show existing options efficiently.
-                                                                                    // We need a proper way to add options.
+                                                                                className="h-8 w-8"
+                                                                                onClick={(e) => {
+                                                                                    const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                                                                                    if (input.value) {
+                                                                                        addOptionToColumn(col.id, input.value);
+                                                                                        input.value = "";
+                                                                                    }
                                                                                 }}
                                                                             >
-                                                                                <Plus className="w-3 h-3 mr-2" /> Create new option
+                                                                                <Plus className="w-4 h-4" />
                                                                             </Button>
-                                                                        </CommandEmpty>
-                                                                        <CommandGroup>
-                                                                            {col.options?.map((option) => (
-                                                                                <CommandItem
-                                                                                    key={option}
-                                                                                    value={option}
-                                                                                    onSelect={() => {
-                                                                                        updateCell(row.id, col.id, option);
-                                                                                    }}
-                                                                                >
-                                                                                    {option}
-                                                                                </CommandItem>
-                                                                            ))}
-                                                                        </CommandGroup>
-                                                                        <div className="p-2 border-t mt-1">
-                                                                            <div className="flex gap-2">
-                                                                                <Input
-                                                                                    placeholder="Add option..."
-                                                                                    className="h-8 text-xs"
-                                                                                    onKeyDown={(e) => {
-                                                                                        if (e.key === "Enter") {
-                                                                                            const val = e.currentTarget.value;
-                                                                                            if (val && !col.options?.includes(val)) {
-                                                                                                const newCols = columns.map(c =>
-                                                                                                    c.id === col.id
-                                                                                                        ? { ...c, options: [...(c.options || []), val] }
-                                                                                                        : c
-                                                                                                );
-                                                                                                updateActiveSheet({ columns: newCols });
-                                                                                                e.currentTarget.value = "";
-                                                                                            }
-                                                                                        }
-                                                                                    }}
-                                                                                />
-                                                                            </div>
                                                                         </div>
-                                                                    </CommandList>
-                                                                </Command>
-                                                            </PopoverContent>
-                                                        </Popover>
-                                                    )}
+                                                                    </div>
+                                                                    <div className="max-h-[200px] overflow-y-auto p-1">
+                                                                        {col.options?.map((option) => (
+                                                                            <div key={option.id} className="flex items-center gap-1 p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 group/option">
+                                                                                {/* Selection Click Area */}
+                                                                                <button
+                                                                                    className="flex-1 flex items-center gap-2 text-sm text-left px-2 py-1.5"
+                                                                                    onClick={() => updateCell(row.id, col.id, option.id)}
+                                                                                >
+                                                                                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: option.color }} />
+                                                                                    {option.label}
+                                                                                    {cell?.value === option.id && <Check className="w-3 h-3 ml-auto text-zinc-400" />}
+                                                                                </button>
+
+                                                                                {/* Edit Controls (Visible on Hover) */}
+                                                                                <div className="flex items-center gap-1 pr-1 opacity-0 group-hover/option:opacity-100 transition-opacity">
+                                                                                    {/* Color Picker Popover */}
+                                                                                    <Popover modal={true}>
+                                                                                        <PopoverTrigger asChild>
+                                                                                            <button className="p-1 hover:bg-zinc-200 rounded">
+                                                                                                <Palette className="w-3 h-3 text-zinc-400" />
+                                                                                            </button>
+                                                                                        </PopoverTrigger>
+                                                                                        <PopoverContent className="w-36 p-2">
+                                                                                            <div className="flex flex-wrap gap-1">
+                                                                                                {OPTION_COLORS.map(c => (
+                                                                                                    <button
+                                                                                                        key={c.value}
+                                                                                                        className="w-6 h-6 rounded-full border"
+                                                                                                        style={{ backgroundColor: c.value }}
+                                                                                                        onClick={() => updateOptionInColumn(col.id, option.id, { color: c.value })}
+                                                                                                    />
+                                                                                                ))}
+                                                                                            </div>
+                                                                                        </PopoverContent>
+                                                                                    </Popover>
+
+                                                                                    {/* Rename Input Popover */}
+                                                                                    <Popover modal={true}>
+                                                                                        <PopoverTrigger asChild>
+                                                                                            <button className="p-1 hover:bg-zinc-200 rounded">
+                                                                                                <Type className="w-3 h-3 text-zinc-400" />
+                                                                                            </button>
+                                                                                        </PopoverTrigger>
+                                                                                        <PopoverContent className="w-48 p-2">
+                                                                                            <div className="space-y-2">
+                                                                                                <h4 className="font-medium text-xs">Rename Option</h4>
+                                                                                                <div className="flex gap-2">
+                                                                                                    <Input
+                                                                                                        defaultValue={option.label}
+                                                                                                        className="h-8"
+                                                                                                        onKeyDown={(e) => {
+                                                                                                            if (e.key === "Enter") {
+                                                                                                                updateOptionInColumn(col.id, option.id, { label: e.currentTarget.value });
+                                                                                                                // Close popover logic would go here ideally
+                                                                                                            }
+                                                                                                        }}
+                                                                                                    />
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </PopoverContent>
+                                                                                    </Popover>
+
+                                                                                    {/* Delete Button */}
+                                                                                    <button
+                                                                                        className="p-1 hover:bg-red-100 hover:text-red-500 rounded"
+                                                                                        onClick={(e) => {
+                                                                                            e.stopPropagation();
+                                                                                            deleteOptionFromColumn(col.id, option.id);
+                                                                                        }}
+                                                                                    >
+                                                                                        <X className="w-3 h-3" />
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                        ))}
+                                                                        {(!col.options || col.options.length === 0) && (
+                                                                            <div className="text-center text-xs text-zinc-400 py-4">No options</div>
+                                                                        )}
+                                                                    </div>
+                                                                </PopoverContent>
+                                                            </Popover>
+                                                        );
+                                                    })()}
 
                                                     {/* IMAGE TYPE */}
                                                     {col.type === "image" && (

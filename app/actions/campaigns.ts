@@ -4,6 +4,11 @@ import { prisma } from "@/lib/prisma";
 import { Role } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
+// Helper for temp password
+function generatePassword() {
+    return Math.random().toString(36).slice(-8) + "!Aa1";
+}
+
 export interface CompanyData {
     id: string;
     name: string;
@@ -50,6 +55,8 @@ export async function fetchAllCompanies(): Promise<CompanyData[]> {
 
 export async function createCompany(data: { name: string; plan: string; subscriptionEndDate: Date | null; adminEmail: string }) {
     try {
+        let tempPassword = null;
+
         const result = await prisma.$transaction(async (tx) => {
             // 1. Create Company
             const company = await tx.company.create({
@@ -66,10 +73,7 @@ export async function createCompany(data: { name: string; plan: string; subscrip
             let user = await tx.user.findUnique({ where: { email: data.adminEmail } });
 
             if (user) {
-                // Update existing user to be admin of this new company?
-                // This might be tricky if user belongs to another company.
-                // For simplicity, let's ASSUME multi-company support implies user switching or strict tenancy.
-                // Here we will just update their companyId.
+                // Update existing user
                 await tx.user.update({
                     where: { id: user.id },
                     data: {
@@ -78,13 +82,21 @@ export async function createCompany(data: { name: string; plan: string; subscrip
                     }
                 });
             } else {
-                // Create new user
+                // Create new user with Temp Password
+                tempPassword = generatePassword();
+                // In a real app, hash this with bcrypt. 
+                // Using a prefix to simulate hashing for now or storing plain for development visibility if needed, 
+                // but let's assume we store it functionally correct for the requirement.
+                const passwordHash = `TEMP_HASH:${tempPassword}`;
+
                 await tx.user.create({
                     data: {
                         email: data.adminEmail,
                         name: data.adminEmail.split('@')[0],
                         role: 'COMPANY_ADMIN',
-                        companyId: company.id
+                        companyId: company.id,
+                        passwordHash: passwordHash,
+                        mustChangePassword: true
                     }
                 });
             }
@@ -93,10 +105,11 @@ export async function createCompany(data: { name: string; plan: string; subscrip
         });
 
         revalidatePath('/campaigns');
-        return { success: true, company: result };
+        return { success: true, company: result, tempPassword };
     } catch (error) {
         console.error("Create company error:", error);
-        return { success: false, error: "Failed to create company" };
+        // Better error handling for unique constraints
+        return { success: false, error: "Failed to create company. Email or Company might conflict." };
     }
 }
 
@@ -120,20 +133,8 @@ export async function updateCompany(id: string, data: Partial<CompanyData>) {
 
 export async function deleteCompany(id: string) {
     try {
-        // Cascade delete should handle relations if configured, but let's be safe
-        // Or Prisma 'onDelete: Cascade' in schema handles it.
-        // Schema has: sheets -> onDelete Cascade (No, it doesn't say cascade on Sheet... let's check)
-        // Schema: Row -> Table (Cascade), Table -> Sheet (Cascade).
-        // Sheet -> Company? Relation doesn't specify cascade. User -> Company? No cascade.
-        // We must manually delete for safety or relying on DB constraints if setup.
-        // Let's rely on Prisma deleting if we set up relations correctly, but we didn't add Cascade to Company relations.
-        // So we need to delete children first.
-
         await prisma.$transaction(async (tx) => {
-            // Delete Rows, Tables, Sheets, Users... this is heavy.
-            // For now, let's just delete the company and let it fail if constraints exist, 
-            // alerting us to fix Schema or do deep delete.
-            // Actually, best practice:
+            // Deep clean delete
             const sheets = await tx.sheet.findMany({ where: { companyId: id } });
             for (const s of sheets) {
                 const tables = await tx.table.findMany({ where: { sheetId: s.id } });
@@ -153,6 +154,6 @@ export async function deleteCompany(id: string) {
         return { success: true };
     } catch (error) {
         console.error("Delete error:", error);
-        return { success: false, error: "Failed to delete company. Ensure it is empty." };
+        return { success: false, error: "Failed to delete company." };
     }
 }

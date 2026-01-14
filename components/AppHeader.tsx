@@ -34,7 +34,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface AppHeaderProps {
     currentUser?: User & { company?: Company };
@@ -44,6 +44,13 @@ interface AppHeaderProps {
 export function AppHeader({ currentUser, allCompanies = [] }: AppHeaderProps) {
     const pathname = usePathname();
     const [open, setOpen] = useState(false);
+    const [mounted, setMounted] = useState(false);
+
+    // Fix hydration mismatch by only rendering complex interactive components on client
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
     const isSuperAdmin = currentUser?.role === 'SUPER_ADMIN';
 
     const handleCompanySwitch = async (companyId: string) => {
@@ -65,7 +72,7 @@ export function AppHeader({ currentUser, allCompanies = [] }: AppHeaderProps) {
             <div className="flex items-center gap-6">
 
                 {/* Brand / Company Switcher */}
-                {isSuperAdmin ? (
+                {isSuperAdmin && mounted ? (
                     <Popover open={open} onOpenChange={setOpen}>
                         <PopoverTrigger asChild>
                             <Button variant="ghost" role="combobox" aria-expanded={open} className="p-0 hover:bg-transparent h-auto font-semibold text-sm text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
@@ -107,6 +114,7 @@ export function AppHeader({ currentUser, allCompanies = [] }: AppHeaderProps) {
                     <div className="font-semibold text-sm text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
                         {currentUser?.company?.name || "Company Data"}
+                        {isSuperAdmin && <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />}
                     </div>
                 )}
 

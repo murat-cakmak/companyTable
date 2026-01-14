@@ -33,6 +33,9 @@ export function CampaignManagement({ initialCompanies }: { initialCompanies: Com
     const [isActive, setIsActive] = useState(true);
     const [loading, setLoading] = useState(false);
 
+    // Success State
+    const [successPass, setSuccessPass] = useState<string | null>(null);
+
     const resetForm = () => {
         setName("");
         setAdminEmail("");
@@ -90,8 +93,16 @@ export function CampaignManagement({ initialCompanies }: { initialCompanies: Com
                 subscriptionEndDate: dateVal,
                 adminEmail
             });
-            if (res.success) {
-                window.location.reload();
+
+            const result = res as any; // Cast to access tempPassword if present
+
+            if (result.success) {
+                if (result.tempPassword) {
+                    setSuccessPass(result.tempPassword);
+                    setIsOpen(false);
+                } else {
+                    window.location.reload();
+                }
             } else {
                 alert("Failed to create: " + res.error);
             }
@@ -254,6 +265,30 @@ export function CampaignManagement({ initialCompanies }: { initialCompanies: Com
                     </div>
                 ))}
             </div>
+
+            {/* Success Password Modal */}
+            {successPass && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
+                    <div className="bg-white dark:bg-zinc-900 w-full max-w-sm rounded-xl shadow-xl border p-6 text-center animate-in zoom-in-95">
+                        <div className="mx-auto w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4">
+                            <CheckCircle2 className="w-6 h-6" />
+                        </div>
+                        <h3 className="text-lg font-bold">Company Created!</h3>
+                        <p className="text-zinc-500 text-sm mt-2">
+                            A temporary password has been generated for the admin.
+                        </p>
+                        <div className="my-4 p-3 bg-zinc-100 dark:bg-zinc-800 rounded font-mono text-lg font-bold select-all border border-zinc-200 dark:border-zinc-700">
+                            {successPass}
+                        </div>
+                        <p className="text-xs text-red-500 mb-4">
+                            Copy this password now. It will not be shown again.
+                        </p>
+                        <Button onClick={() => window.location.reload()} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
+                            Done & Reload
+                        </Button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

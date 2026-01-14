@@ -150,7 +150,7 @@ export function UserManagement({ initialUsers }: { initialUsers: UserData[] }) {
                                         {user.role.replace('_', ' ')}
                                     </span>
                                 </td>
-                                <td className="px-6 py-4 text-zinc-500">
+                                <td className="px-6 py-4 text-zinc-500" suppressHydrationWarning>
                                     {new Date(user.createdAt).toLocaleDateString()}
                                 </td>
                                 <td className="px-6 py-4 text-right">

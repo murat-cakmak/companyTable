@@ -10,7 +10,8 @@ import {
     Trash2,
     Edit,
     CheckCircle2,
-    XCircle
+    XCircle,
+    AlertTriangle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -242,15 +243,30 @@ export function CampaignManagement({ initialCompanies }: { initialCompanies: Com
                             </div>
                             <div className="flex justify-between text-sm border-b pb-2">
                                 <span className="text-zinc-500">Status</span>
-                                {c.isActive ? (
-                                    <span className="flex items-center gap-1 text-green-600 text-xs font-medium">
-                                        <CheckCircle2 className="w-3 h-3" /> Active
-                                    </span>
-                                ) : (
-                                    <span className="flex items-center gap-1 text-red-500 text-xs font-medium">
-                                        <XCircle className="w-3 h-3" /> Suspended
-                                    </span>
-                                )}
+                                {(() => {
+                                    const now = new Date();
+                                    const isExpired = c.subscriptionEndDate && new Date(c.subscriptionEndDate) < now;
+
+                                    if (!c.isActive) {
+                                        return (
+                                            <span className="flex items-center gap-1 text-red-500 text-xs font-medium">
+                                                <XCircle className="w-3 h-3" /> Suspended
+                                            </span>
+                                        );
+                                    }
+                                    if (isExpired) {
+                                        return (
+                                            <span className="flex items-center gap-1 text-orange-600 text-xs font-medium">
+                                                <AlertTriangle className="w-3 h-3" /> Expired
+                                            </span>
+                                        );
+                                    }
+                                    return (
+                                        <span className="flex items-center gap-1 text-green-600 text-xs font-medium">
+                                            <CheckCircle2 className="w-3 h-3" /> Active
+                                        </span>
+                                    );
+                                })()}
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-zinc-500">Expires</span>

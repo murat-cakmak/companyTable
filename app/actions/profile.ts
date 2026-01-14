@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { getAuthenticatedUser } from "@/app/actions/auth";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 
 export async function updateProfile(data: { name: string }) {
     try {
@@ -24,17 +25,20 @@ export async function changePassword(newPassword: string) {
     try {
         const currentUser = await getAuthenticatedUser();
 
-        // In a real app, verify old password first if provided.
-        // Also hash the new password.
-        const passwordHash = `HASH:${newPassword}`; // Mock hash
+        // In real app, old password verification is needed.
+        const passwordHash = `HASH:${newPassword}`;
 
         await prisma.user.update({
             where: { id: currentUser.id },
             data: {
                 passwordHash: passwordHash,
-                mustChangePassword: false // Clear the flag
+                mustChangePassword: false
             }
         });
+
+        // Clear restriction cookie
+        const cookieStore = await cookies();
+        cookieStore.delete('must_change_password');
 
         revalidatePath('/profile');
         return { success: true };

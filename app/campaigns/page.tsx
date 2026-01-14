@@ -1,10 +1,18 @@
 import React from "react";
 import { fetchAllCompanies } from "@/app/actions/campaigns";
 import { CampaignManagement } from "@/components/CampaignManagement";
+import { getAuthenticatedUser } from "@/app/actions/auth";
+import { redirect } from "next/navigation";
 
 export const dynamic = 'force-dynamic';
 
 export default async function CampaignsPage() {
+    const user = await getAuthenticatedUser();
+
+    if (!user || user.role !== 'SUPER_ADMIN') {
+        redirect('/');
+    }
+
     const companies = await fetchAllCompanies();
 
     return (

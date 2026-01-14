@@ -77,7 +77,7 @@ export function SettingsForm({ initialSettings, plan, subscriptionEndDate }: Set
                                 <CreditCard className="w-4 h-4 text-indigo-500" />
                                 <span className="font-semibold text-sm">{plan} Plan</span>
                             </div>
-                            <div className="text-xs text-zinc-500">
+                            <div className="text-xs text-zinc-500" suppressHydrationWarning>
                                 Expires: {subscriptionEndDate ? new Date(subscriptionEndDate).toLocaleDateString() : "Lifetime"}
                             </div>
                             <Button variant="outline" size="sm" className="w-full text-xs h-7">

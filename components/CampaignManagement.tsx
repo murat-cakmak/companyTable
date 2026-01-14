@@ -243,7 +243,7 @@ export function CampaignManagement({ initialCompanies }: { initialCompanies: Com
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-zinc-500">Expires</span>
-                                <div className="flex items-center gap-1 text-zinc-700 dark:text-zinc-300">
+                                <div className="flex items-center gap-1 text-zinc-700 dark:text-zinc-300" suppressHydrationWarning>
                                     <Calendar className="w-3 h-3 text-zinc-400" />
                                     {c.subscriptionEndDate
                                         ? new Date(c.subscriptionEndDate).toLocaleDateString()

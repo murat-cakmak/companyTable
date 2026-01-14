@@ -7,21 +7,14 @@ import { revalidatePath } from "next/cache";
 // Mock auth
 const DEMO_USER_EMAIL = 'mrtstab@gmail.com';
 
+import { getAuthenticatedUser } from "@/app/actions/auth";
+
 export interface UserData {
     id: string;
     email: string;
     name: string | null;
     role: Role;
     createdAt: Date;
-}
-
-async function getAuthenticatedUser() {
-    const user = await prisma.user.findUnique({
-        where: { email: DEMO_USER_EMAIL },
-        include: { company: true }
-    });
-    if (!user) throw new Error("User not found");
-    return user;
 }
 
 export async function fetchCompanyUsers(): Promise<UserData[]> {

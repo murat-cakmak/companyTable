@@ -2,24 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { Sheet, Column } from "@/types/table";
-
-// This simulates the authenticated user's email.
-// In a real app, this would come from the session.
-const DEMO_USER_EMAIL = 'mrtstab@gmail.com';
-
-async function getAuthenticatedUser() {
-    const user = await prisma.user.findUnique({
-        where: { email: DEMO_USER_EMAIL },
-        include: { company: true }
-    });
-
-    if (!user) {
-        // If user not found, try to find ANY admin as fallback for demo purposes
-        // or throw error. Let's throw for clarity.
-        throw new Error(`User not found: ${DEMO_USER_EMAIL}`);
-    }
-    return user;
-}
+import { getAuthenticatedUser } from "@/app/actions/auth";
 
 // --- Fetch Data ---
 

@@ -13,12 +13,11 @@ export interface DashboardStats {
     recentSheets: { id: string; name: string; updatedAt: Date }[];
 }
 
+import { getAuthenticatedUser } from "@/app/actions/auth";
+
 export async function fetchDashboardStats(): Promise<DashboardStats> {
     try {
-        const user = await prisma.user.findUnique({
-            where: { email: DEMO_USER_EMAIL },
-            include: { company: true }
-        });
+        const user = await getAuthenticatedUser();
 
         if (!user) {
             return {

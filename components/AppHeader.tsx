@@ -13,10 +13,43 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils"; // Import cn utility
+import { switchAdminCompany } from "@/app/actions/auth";
+import type { User, Company } from "@prisma/client";
+import { cn } from "@/lib/utils";
+import {
+    ChevronsUpDown,
+    Check,
+    Building
+} from "lucide-react";
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from "@/components/ui/command";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
+import { useState } from "react";
 
-export function AppHeader() {
+interface AppHeaderProps {
+    currentUser?: User & { company?: Company };
+    allCompanies?: { id: string; name: string }[];
+}
+
+export function AppHeader({ currentUser, allCompanies = [] }: AppHeaderProps) {
     const pathname = usePathname();
+    const [open, setOpen] = useState(false);
+    const isSuperAdmin = currentUser?.role === 'SUPER_ADMIN';
+
+    const handleCompanySwitch = async (companyId: string) => {
+        await switchAdminCompany(companyId);
+        window.location.reload();
+    };
 
     const links = [
         { href: "/", label: "Editor" },
@@ -25,13 +58,58 @@ export function AppHeader() {
         { href: "/campaigns", label: "Campaigns" },
     ];
 
+    // Filter links based on role if needed (e.g. Campaigns only for SUPER_ADMIN/Company Admin)
+
     return (
         <header className="h-10 border-b bg-white dark:bg-zinc-900 flex items-center px-4 shrink-0 shadow-sm z-10 justify-between">
             <div className="flex items-center gap-6">
-                <div className="font-semibold text-sm text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
-                    Company Data
-                </div>
+
+                {/* Brand / Company Switcher */}
+                {isSuperAdmin ? (
+                    <Popover open={open} onOpenChange={setOpen}>
+                        <PopoverTrigger asChild>
+                            <Button variant="ghost" role="combobox" aria-expanded={open} className="p-0 hover:bg-transparent h-auto font-semibold text-sm text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
+                                {currentUser?.company?.name || "Select Company"}
+                                <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[200px] p-0">
+                            <Command>
+                                <CommandInput placeholder="Search company..." />
+                                <CommandList>
+                                    <CommandEmpty>No company found.</CommandEmpty>
+                                    <CommandGroup>
+                                        {allCompanies.map((company) => (
+                                            <CommandItem
+                                                key={company.id}
+                                                value={company.name}
+                                                onSelect={() => {
+                                                    handleCompanySwitch(company.id);
+                                                    setOpen(false);
+                                                }}
+                                            >
+                                                <Check
+                                                    className={cn(
+                                                        "mr-2 h-4 w-4",
+                                                        currentUser?.companyId === company.id ? "opacity-100" : "opacity-0"
+                                                    )}
+                                                />
+                                                {company.name}
+                                            </CommandItem>
+                                        ))}
+                                    </CommandGroup>
+                                </CommandList>
+                            </Command>
+                        </PopoverContent>
+                    </Popover>
+                ) : (
+                    <div className="font-semibold text-sm text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
+                        {currentUser?.company?.name || "Company Data"}
+                    </div>
+                )}
+
                 <nav className="flex items-center gap-4">
                     {links.map(link => {
                         const isActive = pathname === link.href;

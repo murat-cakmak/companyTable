@@ -229,6 +229,25 @@ export function ExcelTable() {
         );
     };
 
+    const deleteSheet = (sheetId: string) => {
+        if (sheets.length <= 1) {
+            alert("Last sheet cannot be deleted.");
+            return;
+        }
+
+        const newSheets = sheets.filter(s => s.id !== sheetId);
+        setSheets(newSheets);
+
+        // If active sheet is deleted, activate the previous one or the first one
+        if (activeSheetId === sheetId) {
+            const index = sheets.findIndex(s => s.id === sheetId);
+            const newActiveIndex = index > 0 ? index - 1 : 0;
+            if (newSheets[newActiveIndex]) {
+                setActiveSheetId(newSheets[newActiveIndex].id);
+            }
+        }
+    };
+
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
@@ -388,6 +407,7 @@ export function ExcelTable() {
                                 onEditStart={setEditingSheetId}
                                 onRename={updateSheetName}
                                 onColorChange={updateSheetColor}
+                                onDelete={deleteSheet}
                             />
                         ))}
                     </SortableContext>

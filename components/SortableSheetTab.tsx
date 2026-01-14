@@ -20,7 +20,11 @@ interface SortableSheetTabProps {
     onEditStart: (id: string) => void;
     onRename: (id: string, newName: string) => void;
     onColorChange: (id: string, color: string) => void;
+    onDelete?: (id: string) => void;
 }
+
+// Import X icon
+import { X } from "lucide-react";
 
 export function SortableSheetTab({
     sheet,
@@ -30,6 +34,7 @@ export function SortableSheetTab({
     onEditStart,
     onRename,
     onColorChange,
+    onDelete,
 }: SortableSheetTabProps) {
     const {
         attributes,
@@ -80,7 +85,7 @@ export function SortableSheetTab({
             onClick={() => onActivate(sheet.id)}
             onDoubleClick={() => onEditStart(sheet.id)}
             className={cn(
-                "group relative px-4 py-2 text-sm font-medium transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800 min-w-[120px] h-full flex items-center justify-center cursor-pointer select-none border-r border-zinc-200 dark:border-zinc-800",
+                "group relative pr-8 pl-4 py-2 text-sm font-medium transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800 min-w-[140px] h-full flex items-center justify-center cursor-pointer select-none border-r border-zinc-200 dark:border-zinc-800",
                 isActive
                     ? "bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 border-t-2 -mt-px z-10"
                     : "text-zinc-500 bg-zinc-50/50 dark:bg-zinc-900/50"
@@ -105,7 +110,9 @@ export function SortableSheetTab({
                                 sheet.color && "opacity-100"
                             )}
                             style={{ backgroundColor: sheet.color }}
-                            onClick={(e) => e.stopPropagation()} // Prevent activating tab when clicking color
+                            // Use onPointerDown to stop propagation to prevent drag start on button click
+                            onPointerDown={(e) => e.stopPropagation()}
+                            onClick={(e) => e.stopPropagation()}
                         />
                     </PopoverTrigger>
                     <PopoverContent className="w-40 p-2" align="start">
@@ -138,6 +145,25 @@ export function SortableSheetTab({
 
                 <span>{sheet.name}</span>
             </div>
+
+            {/* Delete Button (Visible on Hover or Active) */}
+            {onDelete && (
+                <button
+                    className={cn(
+                        "absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded-sm text-zinc-400 hover:text-red-500 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-opacity",
+                        isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                    )}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(sheet.id);
+                    }}
+                    // Stop pointer down propagation to avoid dragging when initiating delete
+                    onPointerDown={(e) => e.stopPropagation()}
+                    title="Delete Sheet"
+                >
+                    <X className="w-3 h-3" />
+                </button>
+            )}
         </div>
     );
 }

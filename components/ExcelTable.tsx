@@ -22,33 +22,107 @@ import {
 } from "@/lib/constants";
 
 export function ExcelTable() {
-    const createNewTable = (columns?: Column[], rows?: Row[]): TableData => ({
-        id: `table-${generateId()}`,
-        columns: columns ? JSON.parse(JSON.stringify(columns)) : JSON.parse(JSON.stringify(INITIAL_COLUMNS)), // Deep copy
-        rows: rows ? JSON.parse(JSON.stringify(rows)) : JSON.parse(JSON.stringify(INITIAL_ROWS)),
-    });
+    const createNewTable = (columns?: Column[], rows?: Row[]): TableData => {
+        const newTableId = `table-${generateId()}`;
+
+        let newRows = rows ? JSON.parse(JSON.stringify(rows)) : JSON.parse(JSON.stringify(INITIAL_ROWS));
+
+        // Regenerate IDs for rows and cells to avoid duplication conflicts
+        newRows = newRows.map((row: Row) => {
+            const newRowId = `row-${generateId()}`;
+            const newCells = { ...row.cells };
+
+            // Should properly regenerate cell IDs too if they contain IDs, but generally cell key is colId
+            // The cell object structure is { id: string, value: any, ... }
+            // Let's update cell.id if it exists
+            Object.keys(newCells).forEach(key => {
+                if (newCells[key] && newCells[key].id) {
+                    newCells[key] = {
+                        ...newCells[key],
+                        id: `cell-${generateId()}` // New unique ID for cell
+                    };
+                }
+            });
+
+            return {
+                ...row,
+                id: newRowId,
+                cells: newCells
+            };
+        });
+
+        return {
+            id: newTableId,
+            columns: columns ? JSON.parse(JSON.stringify(columns)) : JSON.parse(JSON.stringify(INITIAL_COLUMNS)), // Deep copy
+            rows: newRows,
+        };
+    };
+
 
     // Initialize with Default Template
     const [savedTemplates, setSavedTemplates] = useState<TableTemplate[]>([
         {
             id: 'default-template',
             name: 'Default Template',
-            columns: DEFAULT_TBL1_COLUMNS as Column[] // Just a placeholder for UI
+            columns: DEFAULT_TBL1_COLUMNS as Column[]
         }
     ]);
     const [templateName, setTemplateName] = useState("");
 
-    const [sheets, setSheets] = useState<Sheet[]>([
-        {
-            id: `sheet-${generateId()}`,
-            name: "Sheet 1",
-            tables: [createNewTable()],
-        },
-    ]);
-    const [activeSheetId, setActiveSheetId] = useState<string>(sheets[0].id);
+    const [sheets, setSheets] = useState<Sheet[]>([]);
+    const [activeSheetId, setActiveSheetId] = useState<string>("");
     const [editingSheetId, setEditingSheetId] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
 
-    const activeSheet = sheets.find((s) => s.id === activeSheetId) || sheets[0];
+    // Load Data from DB
+    React.useEffect(() => {
+        const load = async () => {
+            try {
+                // Dynamic import to avoid SSR issues if any, though standard import is fine for client components calling server actions
+                const { fetchCompanyData } = await import("@/app/actions/sheets");
+                const data = await fetchCompanyData();
+                if (data && data.length > 0) {
+                    setSheets(data);
+                    setActiveSheetId(data[0].id);
+                } else {
+                    // Fallback to empty default if DB is empty
+                    const defaultSheet = {
+                        id: `sheet-${generateId()}`,
+                        name: "Sheet 1",
+                        tables: [createNewTable()],
+                    };
+                    setSheets([defaultSheet]);
+                    setActiveSheetId(defaultSheet.id);
+                }
+            } catch (err) {
+                console.error("Failed to load", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        load();
+    }, []);
+
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            const { saveCompanyData } = await import("@/app/actions/sheets");
+            const result = await saveCompanyData(sheets);
+            if (result.success) {
+                alert("Data saved successfully!");
+            } else {
+                alert("Failed to save data: " + JSON.stringify(result.error));
+            }
+        } catch (e) {
+            console.error(e);
+            alert("An error occurred while saving.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const activeSheet = sheets.find((s) => s.id === activeSheetId) || sheets[0] || { id: 'loading', tables: [], name: 'Loading...' };
 
     const updateActiveSheet = (updates: Partial<Sheet>) => {
         setSheets((prev) =>
@@ -57,6 +131,7 @@ export function ExcelTable() {
             )
         );
     };
+
 
     // --- Actions ---
 
@@ -177,6 +252,10 @@ export function ExcelTable() {
         }
     };
 
+    if (isLoading) {
+        return <div className="flex h-full items-center justify-center text-zinc-500">Loading company data...</div>;
+    }
+
     return (
         <div className="flex flex-col h-full w-full gap-2 pb-14">
             <div className="flex items-center justify-between px-1 mt-[10px]">
@@ -190,6 +269,17 @@ export function ExcelTable() {
                     </span>
 
                     {/* Template Button */}
+                    <Button
+                        variant="default"
+                        size="sm"
+                        className="gap-2 bg-green-600 hover:bg-green-700 text-white"
+                        onClick={handleSave}
+                        disabled={isSaving}
+                    >
+                        <Save className="w-4 h-4" />
+                        {isSaving ? "Saving..." : "Save Changes"}
+                    </Button>
+
                     <Popover>
                         <PopoverTrigger asChild>
                             <Button variant="outline" size="sm" className="gap-2 text-zinc-600 dark:text-zinc-400">

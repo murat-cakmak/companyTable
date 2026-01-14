@@ -53,7 +53,23 @@ A modern, high-performance editable data table application built with **Next.js 
     npm install
     ```
 
-3.  **Run the development server**:
+3.  **Database Setup (Prisma)**:
+    
+    Ensure you have a database connection string in your `.env` file (DATABASE_URL).
+
+    **Generate Client & Migrate:**
+    ```bash
+    npx prisma generate
+    npx prisma db push
+    ```
+
+    **Seed Database (Optional):**
+    Populate the database with initial demo data.
+    ```bash
+    npx prisma db seed
+    ```
+
+4.  **Run the development server**:
     ```bash
     npm run dev
     ```

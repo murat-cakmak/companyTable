@@ -1,0 +1,123 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --- Multi-Tenancy Core ---
+
+model Company {
+  id        String   @id @default(uuid())
+  name      String
+  plan      String   @default("FREE") // FREE, PRO, ENTERPRISE
+  settings  Json?    // Branding, custom configurations
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users      User[]
+  sheets     Sheet[]
+  dashboards Dashboard[]
+}
+
+enum Role {
+  SUPER_ADMIN
+  COMPANY_ADMIN
+  EDITOR
+  VIEWER
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String?
+  name         String?
+  role         Role     @default(VIEWER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  createdRows   Row[]          @relation("CreatedBy")
+  notifications Notification[]
+}
+
+// --- Dynamic Data ---
+
+model Sheet {
+  id        String   @id @default(uuid())
+  name      String
+  order     Int      @default(0)
+  color     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  tables Table[]
+}
+
+model Table {
+  id        String   @id @default(uuid())
+  name      String?
+  columns   Json     // Array of Column definitions: [{ id, type, header, options, width }]
+  rowHeight Int?     @default(40)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sheetId String
+  sheet   Sheet  @relation(fields: [sheetId], references: [id], onDelete: Cascade)
+
+  rows Row[]
+}
+
+model Row {
+  id        String   @id @default(uuid())
+  data      Json     // The actual cell data: { "col_1": "Value", "col_2": "2024..." }
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tableId String
+  table   Table @relation(fields: [tableId], references: [id], onDelete: Cascade)
+
+  createdById String?
+  createdBy   User?   @relation("CreatedBy", fields: [createdById], references: [id])
+}
+
+// --- Notifications & Dashboard ---
+
+enum NotificationType {
+  DUE_DATE
+  MENTION
+  SYSTEM
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  type      NotificationType
+  message   String
+  isRead    Boolean          @default(false)
+  metadata  Json?            // Link to specific row/table
+  createdAt DateTime         @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model Dashboard {
+  id        String   @id @default(uuid())
+  layout    Json     // Grid positions
+  widgets   Json     // Chart definitions
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+}

@@ -51,6 +51,7 @@ export function SortableSheetTab({
                 style={style}
                 {...attributes}
                 {...listeners}
+                suppressHydrationWarning
                 className="h-full relative font-mono text-sm"
             >
                 <input
@@ -75,6 +76,7 @@ export function SortableSheetTab({
             style={style}
             {...attributes}
             {...listeners}
+            suppressHydrationWarning
             onClick={() => onActivate(sheet.id)}
             onDoubleClick={() => onEditStart(sheet.id)}
             className={cn(

@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Company Data Table
+
+A modern, high-performance editable data table application built with **Next.js 14+**, **Tailwind CSS**, and **Shadcn/UI**. This application mimics spreadsheet-like functionality with a focus on ease of use and visual appeal.
+
+## Features
+
+### 📊 Dynamic Data Table
+-   **Flexible Structure**: Easily add, remove, and reorder rows and columns.
+-   **Rich Column Types**:
+    -   **Text**: Standard input fields.
+    -   **Select / Multi-Select**: Dropdowns with customizable options and color coding.
+    -   **Date**: Date pickers for temporal data.
+    -   **Price**: Currency inputs.
+    -   **File / Image**: Upload and preview support.
+    -   **Icon**: Visual indicators.
+-   **Resizing**:
+    -   **Column Width**: Drag column headers to resize.
+    -   **Row Height**: Drag row indices to adjust global row height.
+
+### 📑 Sheet Management
+-   **Multiple Sheets**: Organize data across multiple tabs.
+-   **Drag & Drop**: Reorder sheets effortlessly using `@dnd-kit`.
+-   **Customization**: Rename tabs and assign custom identification colors.
+
+### 💾 Templates
+-   **Save & Load**: Save table structures as templates for quick reuse.
+-   **Default Templates**: Includes pre-configured templates for common use cases.
+
+### 🎨 UI/UX
+-   **Modern Design**: Clean, minimal interface using **Shadcn/UI** components.
+-   **Dark Mode**: Fully supported dark theme.
+-   **Responsive**: Full-height application layout.
+
+## Tech Stack
+
+-   **Framework**: [Next.js](https://nextjs.org/) (App Router)
+-   **Language**: [TypeScript](https://www.typescriptlang.org/)
+-   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+-   **Components**: [Shadcn/UI](https://ui.shadcn.com/) (Radix UI)
+-   **Icons**: [Lucide React](https://lucide.dev/)
+-   **Drag & Drop**: [@dnd-kit](https://dndkit.com/)
 
 ## Getting Started
 
-First, run the development server:
+1.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/murat-cakmak/companyTable.git
+    cd companyTable
+    ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+2.  **Install dependencies**:
+    ```bash
+    npm install
+    ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3.  **Run the development server**:
+    ```bash
+    npm run dev
+    ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+4.  **Open the app**:
+    Navigate to [http://localhost:3000](http://localhost:3000).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project Structure
 
-## Learn More
+-   `/app`: Next.js App Router pages and layouts.
+-   `/components`: React components (ui, table, etc.).
+-   `/lib`: Utility functions and constants.
+-   `/types`: TypeScript type definitions.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

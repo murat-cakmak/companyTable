@@ -18,8 +18,7 @@ import type { User, Company } from "@prisma/client";
 import { cn } from "@/lib/utils";
 import {
     ChevronsUpDown,
-    Check,
-    Building
+    Check
 } from "lucide-react";
 import {
     Command,
@@ -142,29 +141,34 @@ export function AppHeader({ currentUser, allCompanies = [] }: AppHeaderProps) {
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="relative h-8 w-8 rounded-full" suppressHydrationWarning>
                             <Avatar className="h-6 w-6">
-                                <AvatarImage src="/avatars/01.png" alt="@murat" />
-                                <AvatarFallback className="text-[10px]">MA</AvatarFallback>
+                                <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${currentUser?.name || "User"}`} alt={currentUser?.name || "User"} />
+                                <AvatarFallback className="text-[10px]">{currentUser?.name?.substring(0, 2).toUpperCase() || "US"}</AvatarFallback>
                             </Avatar>
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-56" align="end" forceMount>
                         <DropdownMenuLabel className="font-normal">
                             <div className="flex flex-col space-y-1">
-                                <p className="text-sm font-medium leading-none">Murat Admin</p>
+                                <p className="text-sm font-medium leading-none">{currentUser?.name || "User"}</p>
                                 <p className="text-xs leading-none text-muted-foreground">
-                                    admin@demo.com
+                                    {currentUser?.email}
                                 </p>
                             </div>
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>
-                            Profile
+                        <DropdownMenuItem asChild>
+                            <Link href="/profile" className="cursor-pointer w-full flex items-center justify-between">
+                                Profile
+                                {currentUser?.mustChangePassword && (
+                                    <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                                )}
+                            </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
-                            Billing
+                        <DropdownMenuItem asChild>
+                            <Link href="/settings" className="cursor-pointer w-full">Billing</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
-                            Settings
+                        <DropdownMenuItem asChild>
+                            <Link href="/settings" className="cursor-pointer w-full">Settings</Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="text-red-500 font-medium">

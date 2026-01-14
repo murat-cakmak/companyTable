@@ -68,10 +68,36 @@ export function TableCell({
             {/* TEXT TYPE */}
             {col.type === "text" && (
                 <input
-                    className="w-full h-full px-4 py-3 bg-transparent border-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none"
+                    className="w-full h-full pl-4 pr-9 py-3 bg-transparent border-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none"
                     value={cell?.value || ""}
                     onChange={(e) => onUpdate(e.target.value)}
                 />
+            )}
+
+            {/* ... (select type skipped) ... */}
+
+            {/* DATE TYPE */}
+            {col.type === "date" && (
+                <input
+                    type="date"
+                    className="w-full h-full pl-4 pr-9 py-3 bg-transparent border-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none text-xs font-mono text-zinc-600 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:mr-5"
+                    value={cell?.value || ""}
+                    onChange={(e) => onUpdate(e.target.value)}
+                />
+            )}
+
+            {/* PRICE TYPE */}
+            {col.type === "price" && (
+                <div className="relative w-full h-full group/price">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs font-medium">₺</span>
+                    <input
+                        type="number"
+                        className="w-full h-full pl-7 pr-9 py-3 bg-transparent border-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none text-xs font-mono text-zinc-700"
+                        placeholder="0.00"
+                        value={cell?.value || ""}
+                        onChange={(e) => onUpdate(e.target.value)}
+                    />
+                </div>
             )}
 
             {/* SELECT TYPE - RICH OPTIONS */}
@@ -486,6 +512,7 @@ export function TableCell({
                     </PopoverContent>
                 </Popover>
             )}
+
 
             {/* Cell Settings Button */}
             <Popover>

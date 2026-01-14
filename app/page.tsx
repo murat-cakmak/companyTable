@@ -2,17 +2,14 @@ import { ExcelTable } from "@/components/ExcelTable";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-zinc-50/50 dark:bg-zinc-950 p-4">
-      <div className="w-full space-y-4">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Editable Data Table
-          </h1>
-          <p className="text-zinc-500 dark:text-zinc-400">
-            A dynamic table with editable cells, rows, and columns.
-          </p>
+    <main className="min-h-screen bg-zinc-50/50 dark:bg-zinc-950 flex flex-col">
+      <header className="h-10 border-b bg-white dark:bg-zinc-900 flex items-center px-4 shrink-0 shadow-sm z-10">
+        <div className="font-semibold text-sm text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
+          Company Data
         </div>
-
+      </header>
+      <div className="flex-1 overflow-hidden">
         <ExcelTable />
       </div>
     </main>

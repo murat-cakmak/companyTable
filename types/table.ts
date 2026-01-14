@@ -10,7 +10,7 @@ export type Cell = {
     style?: CellStyle;
 };
 
-export type ColumnType = "text" | "select" | "multi-select" | "image" | "icon" | "file";
+export type ColumnType = "text" | "select" | "multi-select" | "image" | "icon" | "file" | "date" | "price";
 
 export type SelectOption = {
     id: string;
@@ -43,10 +43,12 @@ export type TableData = {
     id: string;
     columns: Column[];
     rows: Row[];
+    rowHeight?: number;
 };
 
 export type Sheet = {
     id: string;
     name: string;
+    color?: string;
     tables: TableData[];
 };

@@ -47,27 +47,85 @@ export const OPTION_COLORS: ColorOption[] = [
 
 import { Column, Row } from "@/types/table";
 
-export const INITIAL_COLUMNS: Column[] = [
-    { id: "col-1", header: "Column A", type: "text" },
-    { id: "col-2", header: "Column B", type: "text" },
-    { id: "col-3", header: "Column C", type: "text" },
+// --- Option Helpers ---
+const opt = (id: string, label: string, color: string) => ({ id, label, color });
+
+// Options Definitions
+const OPTS_APPLY = [
+    opt("opt-app-done", "BAŞVURU YAPILDI", "#166534"), // Dark Green (using hex close to image) - wait, image has green bg, white text usually or dark green bg. 
+    // The user's Select component uses `backgroundColor` for the badge.
+    // Image shows Dark Green background with White text? Or Light Green bg?
+    // "BAŞVURU YAPILDI" looks like Dark Green background.
+    // I will use some standard colors from OPTION_COLORS or custom hex.
+    // Let's use Hex codes that look like the image.
+    opt("opt-app-assigned", "ATANDI", "#166534"),
+    opt("opt-app-none", "BAŞLAMADI", "#ef4444"),
 ];
 
-export const INITIAL_ROWS: Row[] = [
-    {
-        id: "row-1",
-        cells: {
-            "col-1": { id: "cell-1-1", value: "Data A1" },
-            "col-2": { id: "cell-1-2", value: "Data B1" },
-            "col-3": { id: "cell-1-3", value: "Data C1" },
-        },
-    },
-    {
-        id: "row-2",
-        cells: {
-            "col-1": { id: "cell-2-1", value: "Data A2" },
-            "col-2": { id: "cell-2-2", value: "Data B2" },
-            "col-3": { id: "cell-2-3", value: "Data C2" },
-        },
-    },
+const OPTS_RESULT = [
+    opt("opt-res-done", "TAMAMLANDI", "#166534"),
+    opt("opt-res-none", "BAŞLAMADI", "#ef4444"),
+    opt("opt-res-continue", "DEVAM EDİYOR", "#f59e0b"),
 ];
+
+const OPTS_PAYMENT = [
+    opt("opt-pay-none", "-", "#f3f4f6"),
+    opt("opt-pay-done", "YATIRILDI-İÇERİ GİRİLDİ", "#166534"),
+    opt("opt-pay-not", "YATIRILMADI", "#ef4444"),
+];
+
+const OPTS_OWNER = [
+    opt("opt-own-feramiz", "FERAMİZ", "#bfdbfe"),
+    opt("opt-own-arda", "ARDA", "#bfdbfe"),
+    opt("opt-own-ozgur", "ÖZGÜR", "#bfdbfe"),
+    opt("opt-own-hasan", "HASAN", "#bfdbfe"),
+];
+
+const OPTS_REVISE = [
+    opt("opt-rev-exist", "REVİZE VAR", "#fca5a5"),
+    opt("opt-rev-arch", "REVİZE MİMARDA", "#fde047"),
+    opt("opt-rev-pros", "REVİZE SAVCIDA", "#fde047"),
+    opt("opt-rev-given", "REVİZE İÇERİ VERİLDİ", "#bbf7d0"),
+    opt("opt-rev-approved", "REVİZE ONAYLANDI", "#16a34a"),
+];
+
+const OPTS_APPLICANT = [
+    opt("opt-app-ozgur", "ÖZGÜR", "#f3f4f6"),
+    opt("opt-app-hasan", "HASAN", "#f3f4f6"),
+    opt("opt-app-none", "-", "#f3f4f6"),
+];
+
+export const INITIAL_COLUMNS: Column[] = [
+    { id: "col-docs", header: "BAŞVURU / BELGELER", type: "text", width: 250 },
+    { id: "col-date-1", header: "TARİH", type: "text", width: 120 },
+    { id: "col-status-apply", header: "BAŞVURU YAPILDI", type: "select", options: OPTS_APPLY, width: 180 },
+    { id: "col-date-2", header: "TARİH", type: "text", width: 120 },
+    { id: "col-status-result", header: "SONUÇLANDI", type: "select", options: OPTS_RESULT, width: 180 },
+    { id: "col-amount", header: "TUTAR", type: "text", width: 120 },
+    { id: "col-payment", header: "ÖDENDİ", type: "select", options: OPTS_PAYMENT, width: 180 },
+    { id: "col-file-owner", header: "DOSYA KİMDE", type: "select", options: OPTS_OWNER, width: 150 },
+    { id: "col-revise", header: "REVİZE", type: "select", options: OPTS_REVISE, width: 180 },
+    { id: "col-applicant", header: "KİM BAŞVURDU", type: "select", options: OPTS_APPLICANT, width: 150 },
+];
+
+const DOCS = [
+    "LİHKAB APLİKASYONU", "İMAR DURUMU", "KIRMIZI KOT", "YAPI APLİKASYONU",
+    "ZEMİN ETÜDÜ", "TRAFO BELGESİ", "NUMARATAJ", "İSKİ BAŞVURUSU",
+    "YENİ YAPI RUHSAT", "YİBF ATAMASI"
+];
+
+export const INITIAL_ROWS: Row[] = DOCS.map((doc, i) => ({
+    id: `row-${i + 1}`,
+    cells: {
+        "col-docs": { id: `cell-${i + 1}-docs`, value: doc },
+        "col-date-1": { id: `cell-${i + 1}-d1`, value: "" },
+        "col-status-apply": { id: `cell-${i + 1}-sa`, value: "" }, // Default empty
+        "col-date-2": { id: `cell-${i + 1}-d2`, value: "" },
+        "col-status-result": { id: `cell-${i + 1}-sr`, value: "" },
+        "col-amount": { id: `cell-${i + 1}-amt`, value: "" },
+        "col-payment": { id: `cell-${i + 1}-pay`, value: "opt-pay-none" }, // Default -
+        "col-file-owner": { id: `cell-${i + 1}-own`, value: "" },
+        "col-revise": { id: `cell-${i + 1}-rev`, value: "" },
+        "col-applicant": { id: `cell-${i + 1}-app`, value: "opt-app-none" },
+    }
+}));

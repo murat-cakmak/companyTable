@@ -1,19 +1,28 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, Layout } from "lucide-react";
+import { Plus, Layout, LayoutTemplate, Save, FilePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
 import { SingleTable } from "@/components/table/SingleTable";
 import { generateId, cn } from "@/lib/utils";
-import { Sheet, TableData, ColumnType, SelectOption, Column, Row } from "@/types/table";
+import { Sheet, TableData, ColumnType, SelectOption, Column, Row, TableTemplate } from "@/types/table";
 import { INITIAL_COLUMNS, INITIAL_ROWS, OPTION_COLORS } from "@/lib/constants";
 
 export function ExcelTable() {
-    const createNewTable = (): TableData => ({
+    const createNewTable = (columns?: Column[]): TableData => ({
         id: `table-${generateId()}`,
-        columns: JSON.parse(JSON.stringify(INITIAL_COLUMNS)), // Deep copy
+        columns: columns ? JSON.parse(JSON.stringify(columns)) : JSON.parse(JSON.stringify(INITIAL_COLUMNS)), // Deep copy
         rows: JSON.parse(JSON.stringify(INITIAL_ROWS)),
     });
+
+    const [savedTemplates, setSavedTemplates] = useState<TableTemplate[]>([]);
+    const [templateName, setTemplateName] = useState("");
 
     const [sheets, setSheets] = useState<Sheet[]>([
         {
@@ -48,11 +57,29 @@ export function ExcelTable() {
         setActiveSheetId(newId);
     };
 
-    const addTableToSheet = () => {
+    const addTableToSheet = (templateColumns?: Column[]) => {
         if (activeSheet.tables.length >= 3) return;
-        const newTable = createNewTable();
+        const newTable = createNewTable(templateColumns);
         updateActiveSheet({ tables: [...activeSheet.tables, newTable] });
     };
+
+    const saveCurrentAsTemplate = () => {
+        if (!templateName.trim()) return;
+        // Save the first table's structure of the active sheet
+        const sourceTable = activeSheet.tables[0];
+        const newTemplate: TableTemplate = {
+            id: generateId(),
+            name: templateName,
+            columns: JSON.parse(JSON.stringify(sourceTable.columns)), // Deep copy columns
+        };
+        setSavedTemplates([...savedTemplates, newTemplate]);
+        setTemplateName("");
+    };
+
+    const loadTemplate = (template: TableTemplate) => {
+        addTableToSheet(template.columns);
+    };
+
 
     const updateTable = (tableId: string, updates: Partial<TableData>) => {
         const newTables = activeSheet.tables.map(t =>
@@ -86,8 +113,54 @@ export function ExcelTable() {
                     <span className="text-xs text-muted-foreground mr-2">
                         {activeSheet.tables.length} / 3 Tables
                     </span>
+
+                    {/* Template Button */}
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button variant="outline" size="sm" className="gap-2 text-zinc-600 dark:text-zinc-400">
+                                <LayoutTemplate className="w-4 h-4" /> Templates
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64 p-3" align="end">
+                            <div className="grid gap-4">
+                                <div className="space-y-2">
+                                    <h4 className="font-medium leading-none text-sm">Save Current</h4>
+                                    <div className="flex gap-2">
+                                        <Input
+                                            placeholder="Template name..."
+                                            className="h-8 text-xs"
+                                            value={templateName}
+                                            onChange={(e) => setTemplateName(e.target.value)}
+                                        />
+                                        <Button size="sm" className="h-8 px-2" onClick={saveCurrentAsTemplate}>
+                                            <Save className="w-3 h-3" />
+                                        </Button>
+                                    </div>
+                                </div>
+                                <div className="space-y-2 pt-2 border-t">
+                                    <h4 className="font-medium leading-none text-sm">Load Template</h4>
+                                    <div className="grid gap-1 max-h-[200px] overflow-y-auto">
+                                        {savedTemplates.map(t => (
+                                            <Button
+                                                key={t.id}
+                                                variant="ghost"
+                                                className="justify-start h-8 text-xs font-normal"
+                                                onClick={() => loadTemplate(t)}
+                                                disabled={activeSheet.tables.length >= 3}
+                                            >
+                                                <FilePlus className="w-3 h-3 mr-2" />
+                                                {t.name}
+                                            </Button>
+                                        ))}
+                                        {savedTemplates.length === 0 && <span className="text-xs text-muted-foreground p-1">No saved templates</span>}
+                                    </div>
+                                </div>
+                            </div>
+                        </PopoverContent>
+                    </Popover>
+
                     <Button
-                        onClick={addTableToSheet}
+                        onClick={() => addTableToSheet()}
                         variant="default"
                         size="sm"
                         className="gap-2"

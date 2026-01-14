@@ -27,6 +27,12 @@ export type Column = {
     style?: CellStyle;
 };
 
+export type TableTemplate = {
+    id: string;
+    name: string;
+    columns: Column[];
+};
+
 export type Row = {
     id: string;
     cells: Record<string, Cell>;

@@ -21,6 +21,8 @@ export function AppHeader() {
     const links = [
         { href: "/", label: "Editor" },
         { href: "/dashboard", label: "Dashboard" },
+        { href: "/users", label: "Team" },
+        { href: "/campaigns", label: "Campaigns" },
     ];
 
     return (

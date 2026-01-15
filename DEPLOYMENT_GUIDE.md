@@ -107,11 +107,3 @@ After your `.env` is set and Database is ready:
     pm2 startnpm --name "company-table" -- start
     pm2 save
     ```
-
-## 4. Troubleshooting
-
-### `npm error code EACCES` (Permission Denied)
-If you see an error like `Error: EACCES: permission denied` when running `npm install`:
-1.  **Check your user:** Look at your terminal prompt. If it says `postgres@...`, you are still logged in as the database user.
-2.  **Exit:** Type `exit` and press Enter to return to your main user (e.g., `root` or `ubuntu`).
-3.  **Retry:** Run `npm install` again as the correct user.

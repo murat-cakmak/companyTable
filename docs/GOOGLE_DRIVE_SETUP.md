@@ -49,3 +49,49 @@ To run this script automatically every night at 3 AM:
 > [!TIP]
 > You may need to use the full path to `npm` if cron doesn't find it. Run `which npm` in your terminal to find it.
 
+
+## Step 5: Deployment on Ubuntu Server (Linux)
+If you want to run this on a real server (e.g., DigitalOcean, AWS Ubuntu instance), follow these tailored steps:
+
+### 1. Install Dependencies
+You need `pg_dump` and `Node.js` installed on the server.
+```bash
+# Update package list
+sudo apt update
+
+# Install Postgres Client (contains pg_dump)
+sudo apt install -y postgresql-client
+
+# Install Node.js (if not already installed)
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+```
+
+### 2. Prepare Project
+1.  Clone your repo to the server (e.g., `/home/ubuntu/company-table`).
+2.  Install packages:
+    ```bash
+    cd /home/ubuntu/company-table
+    npm install
+    ```
+3.  **Upload Credentials**: You MUST upload your local `credentials.json` and `.env` files to the server. You can use `scp` or `FileZilla`.
+    ```bash
+    # Example using SCP from your local machine
+    scp credentials.json ubuntu@your-server-ip:/home/ubuntu/company-table/
+    scp .env ubuntu@your-server-ip:/home/ubuntu/company-table/
+    ```
+
+### 3. Generate Token (One-time)
+Since the server has no browser, you might need to regenerate the token locally or try running the script on the server if you can tunnel ports.
+**Easiest way:** Just reuse the `GOOLE_DRIVE_REFRESH_TOKEN` you generated on your Mac! It works everywhere. Just ensure it is in the `.env` file on the server.
+
+### 4. Setup Cron Job
+1.  Open crontab:
+    ```bash
+    crontab -e
+    ```
+2.  Add the line (check paths!):
+    ```cron
+    0 3 * * * cd /home/ubuntu/company-table && /usr/bin/npm run backup >> /home/ubuntu/backup.log 2>&1
+    ```
+    (You can find where npm is with `which npm`).

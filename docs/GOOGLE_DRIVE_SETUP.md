@@ -94,4 +94,24 @@ Since the server has no browser, you might need to regenerate the token locally 
     ```cron
     0 3 * * * cd /home/ubuntu/company-table && /usr/bin/npm run backup >> /home/ubuntu/backup.log 2>&1
     ```
-    (You can find where npm is with `which npm`).
+
+## Step 6: How to Restore a Backup
+If you need to roll back your database to a previous version:
+
+1.  **Download the Backup**: 
+    Go to your Google Drive folder and download the `.sql` file you want (e.g., `backup-2026-01-15.sql`).
+
+2.  **Clear Current Database** (Optional but Recommended):
+    *Warning: This wipes the current data!*
+    ```bash
+    psql "your_connection_string" -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+    ```
+
+3.  **Restore the File**:
+    Run this command in your terminal (replace file name and connection string):
+    ```bash
+    psql "your_connection_string" < /path/to/downloaded/backup.sql
+    ```
+
+> [!NOTE]
+> If you get errors about "owner" or "privileges", you can ignore them if the data is imported correctly. To avoid them, you can add `--no-owner --no-privileges` flags if using `pg_restore`, but for plain SQL dumps (`<`), just ignoring them is fine.

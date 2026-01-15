@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+import bcrypt from 'bcryptjs';
+
 const DEMO_USER_EMAIL = 'mrtstab@gmail.com';
 const COMPANY_COOKIE_NAME = 'admin_selected_company_id';
 const SESSION_COOKIE_NAME = 'user_session_email';
@@ -26,18 +28,14 @@ export async function login(formData: FormData) {
             return { success: false, error: "Invalid credentials" };
         }
 
-        // Mock Password Check
+        // Password Check using BCRYPT
         let isValid = false;
 
         if (user.passwordHash) {
-            if (user.passwordHash.startsWith("TEMP_HASH:") || user.passwordHash.startsWith("HASH:")) {
-                const storedPass = user.passwordHash.split(":")[1];
-                if (storedPass === password) isValid = true;
-            }
-            else if (user.passwordHash === password) {
-                isValid = true;
-            }
+            // Check if it matches hashed password
+            isValid = await bcrypt.compare(password, user.passwordHash);
         } else {
+            // Fallback for legacy/demo users without hash
             if (email === DEMO_USER_EMAIL) isValid = true;
         }
 

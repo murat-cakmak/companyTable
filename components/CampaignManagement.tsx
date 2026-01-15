@@ -20,8 +20,10 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useTranslations } from "next-intl";
 
 export function CampaignManagement({ initialCompanies }: { initialCompanies: CompanyData[] }) {
+    const t = useTranslations('Campaigns');
     const [companies, setCompanies] = useState(initialCompanies);
     const [isOpen, setIsOpen] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -112,7 +114,7 @@ export function CampaignManagement({ initialCompanies }: { initialCompanies: Com
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Delete and all data associated? This cannot be undone.")) return;
+        if (!confirm(t('deleteConfirm'))) return;
         const res = await deleteCompany(id);
         if (res.success) {
             setCompanies(companies.filter(c => c.id !== id));
@@ -126,11 +128,11 @@ export function CampaignManagement({ initialCompanies }: { initialCompanies: Com
             <div className="flex items-center justify-between bg-white dark:bg-zinc-900 p-4 rounded-xl border shadow-sm">
                 <h2 className="font-semibold text-lg flex items-center gap-2">
                     <Building2 className="w-5 h-5 text-indigo-500" />
-                    Companies
+                    {t('title')}
                 </h2>
                 <Button onClick={openCreate} className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white">
                     <Plus className="w-4 h-4" />
-                    New Company
+                    {t('newCompany')}
                 </Button>
             </div>
 
@@ -138,10 +140,10 @@ export function CampaignManagement({ initialCompanies }: { initialCompanies: Com
             {isOpen && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white dark:bg-zinc-900 w-full max-w-md rounded-xl shadow-xl border p-6 animate-in zoom-in-95 duration-200">
-                        <h3 className="text-lg font-bold mb-4">{editingId ? "Edit Company" : "New Company"}</h3>
+                        <h3 className="text-lg font-bold mb-4">{editingId ? t('editCompany') : t('newCompany')}</h3>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium mb-1">Company Name</label>
+                                <label className="block text-sm font-medium mb-1">{t('companyName')}</label>
                                 <input
                                     className="w-full border rounded p-2 text-sm bg-zinc-50 dark:bg-zinc-800"
                                     value={name} onChange={e => setName(e.target.value)} required
@@ -150,20 +152,20 @@ export function CampaignManagement({ initialCompanies }: { initialCompanies: Com
 
                             {!editingId && (
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">Admin Email</label>
+                                    <label className="block text-sm font-medium mb-1">{t('adminEmail')}</label>
                                     <input
                                         type="email"
                                         className="w-full border rounded p-2 text-sm bg-zinc-50 dark:bg-zinc-800"
                                         value={adminEmail} onChange={e => setAdminEmail(e.target.value)} required
-                                        placeholder="admin@company.com"
+                                        placeholder={t('adminEmailPlaceholder')}
                                     />
-                                    <p className="text-xs text-zinc-500 mt-1">A user account will be created or assigned.</p>
+                                    <p className="text-xs text-zinc-500 mt-1">{t('adminEmailHint')}</p>
                                 </div>
                             )}
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">Plan</label>
+                                    <label className="block text-sm font-medium mb-1">{t('plan')}</label>
                                     <select
                                         className="w-full border rounded p-2 text-sm bg-zinc-50 dark:bg-zinc-800"
                                         value={plan} onChange={e => setPlan(e.target.value)}
@@ -174,19 +176,19 @@ export function CampaignManagement({ initialCompanies }: { initialCompanies: Com
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">Active Status</label>
+                                    <label className="block text-sm font-medium mb-1">{t('activeStatus')}</label>
                                     <select
                                         className="w-full border rounded p-2 text-sm bg-zinc-50 dark:bg-zinc-800"
                                         value={isActive ? "true" : "false"} onChange={e => setIsActive(e.target.value === 'true')}
                                     >
-                                        <option value="true">Active</option>
-                                        <option value="false">Suspended</option>
+                                        <option value="true">{t('active')}</option>
+                                        <option value="false">{t('suspended')}</option>
                                     </select>
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium mb-1">Subscription End Date</label>
+                                <label className="block text-sm font-medium mb-1">{t('subscriptionEndDate')}</label>
                                 <input
                                     type="date"
                                     className="w-full border rounded p-2 text-sm bg-zinc-50 dark:bg-zinc-800"
@@ -197,7 +199,7 @@ export function CampaignManagement({ initialCompanies }: { initialCompanies: Com
                             <div className="flex justify-end gap-2 mt-6">
                                 <Button type="button" variant="ghost" onClick={() => setIsOpen(false)}>Cancel</Button>
                                 <Button type="submit" disabled={loading} className="bg-indigo-600 hover:bg-indigo-700 text-white">
-                                    {loading ? "Saving..." : "Save Company"}
+                                    {loading ? "Saving..." : t('saveCompany')}
                                 </Button>
                             </div>
                         </form>
@@ -227,10 +229,10 @@ export function CampaignManagement({ initialCompanies }: { initialCompanies: Com
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                     <DropdownMenuItem onClick={() => openEdit(c)}>
-                                        <Edit className="w-4 h-4 mr-2" /> Edit Details
+                                        <Edit className="w-4 h-4 mr-2" /> {t('editDetails')}
                                     </DropdownMenuItem>
                                     <DropdownMenuItem className="text-red-600" onClick={() => handleDelete(c.id)}>
-                                        <Trash2 className="w-4 h-4 mr-2" /> Delete
+                                        <Trash2 className="w-4 h-4 mr-2" /> {t('delete')}
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
@@ -238,11 +240,11 @@ export function CampaignManagement({ initialCompanies }: { initialCompanies: Com
 
                         <div className="space-y-3 mt-4">
                             <div className="flex justify-between text-sm border-b pb-2">
-                                <span className="text-zinc-500">Plan</span>
+                                <span className="text-zinc-500">{t('plan')}</span>
                                 <span className="font-medium bg-zinc-100 dark:bg-zinc-800 px-2 rounded text-xs py-0.5">{c.plan}</span>
                             </div>
                             <div className="flex justify-between text-sm border-b pb-2">
-                                <span className="text-zinc-500">Status</span>
+                                <span className="text-zinc-500">{t('activeStatus')}</span>
                                 {(() => {
                                     const now = new Date();
                                     const isExpired = c.subscriptionEndDate && new Date(c.subscriptionEndDate) < now;
@@ -250,26 +252,26 @@ export function CampaignManagement({ initialCompanies }: { initialCompanies: Com
                                     if (!c.isActive) {
                                         return (
                                             <span className="flex items-center gap-1 text-red-500 text-xs font-medium">
-                                                <XCircle className="w-3 h-3" /> Suspended
+                                                <XCircle className="w-3 h-3" /> {t('suspended')}
                                             </span>
                                         );
                                     }
                                     if (isExpired) {
                                         return (
                                             <span className="flex items-center gap-1 text-orange-600 text-xs font-medium">
-                                                <AlertTriangle className="w-3 h-3" /> Expired
+                                                <AlertTriangle className="w-3 h-3" /> {t('expired')}
                                             </span>
                                         );
                                     }
                                     return (
                                         <span className="flex items-center gap-1 text-green-600 text-xs font-medium">
-                                            <CheckCircle2 className="w-3 h-3" /> Active
+                                            <CheckCircle2 className="w-3 h-3" /> {t('active')}
                                         </span>
                                     );
                                 })()}
                             </div>
                             <div className="flex justify-between text-sm">
-                                <span className="text-zinc-500">Expires</span>
+                                <span className="text-zinc-500">{t('expires')}</span>
                                 <div className="flex items-center gap-1 text-zinc-700 dark:text-zinc-300" suppressHydrationWarning>
                                     <Calendar className="w-3 h-3 text-zinc-400" />
                                     {c.subscriptionEndDate
@@ -289,18 +291,18 @@ export function CampaignManagement({ initialCompanies }: { initialCompanies: Com
                         <div className="mx-auto w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4">
                             <CheckCircle2 className="w-6 h-6" />
                         </div>
-                        <h3 className="text-lg font-bold">Company Created!</h3>
+                        <h3 className="text-lg font-bold">{t('companyCreated')}</h3>
                         <p className="text-zinc-500 text-sm mt-2">
-                            A temporary password has been generated for the admin.
+                            {t('tempPasswordDesc')}
                         </p>
                         <div className="my-4 p-3 bg-zinc-100 dark:bg-zinc-800 rounded font-mono text-lg font-bold select-all border border-zinc-200 dark:border-zinc-700">
                             {successPass}
                         </div>
                         <p className="text-xs text-red-500 mb-4">
-                            Copy this password now. It will not be shown again.
+                            {t('copyPasswordWarning')}
                         </p>
                         <Button onClick={() => window.location.reload()} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
-                            Done & Reload
+                            {t('doneReload')}
                         </Button>
                     </div>
                 </div>

@@ -7,6 +7,7 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, horizontalList
 import { SortableSheetTab } from "./SortableSheetTab";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useTranslations } from "next-intl";
 import {
     Popover,
     PopoverContent,
@@ -22,6 +23,8 @@ import {
 } from "@/lib/constants";
 
 export function ExcelTable() {
+    const t = useTranslations('Table');
+
     const createNewTable = (columns?: Column[], rows?: Row[]): TableData => {
         const newTableId = `table-${generateId()}`;
 
@@ -32,14 +35,11 @@ export function ExcelTable() {
             const newRowId = `row-${generateId()}`;
             const newCells = { ...row.cells };
 
-            // Should properly regenerate cell IDs too if they contain IDs, but generally cell key is colId
-            // The cell object structure is { id: string, value: any, ... }
-            // Let's update cell.id if it exists
             Object.keys(newCells).forEach(key => {
                 if (newCells[key] && newCells[key].id) {
                     newCells[key] = {
                         ...newCells[key],
-                        id: `cell-${generateId()}` // New unique ID for cell
+                        id: `cell-${generateId()}`
                     };
                 }
             });
@@ -63,7 +63,7 @@ export function ExcelTable() {
     const [savedTemplates, setSavedTemplates] = useState<TableTemplate[]>([
         {
             id: 'default-template',
-            name: 'Default Template',
+            name: 'Default Template', // Internal name, will be translated on render
             columns: DEFAULT_TBL1_COLUMNS as Column[]
         }
     ]);
@@ -89,7 +89,7 @@ export function ExcelTable() {
                     // Fallback to empty default if DB is empty
                     const defaultSheet = {
                         id: `sheet-${generateId()}`,
-                        name: "Sheet 1",
+                        name: t('sheetName', { number: 1 }),
                         tables: [createNewTable()],
                     };
                     setSheets([defaultSheet]);
@@ -110,13 +110,13 @@ export function ExcelTable() {
             const { saveCompanyData } = await import("@/app/actions/sheets");
             const result = await saveCompanyData(sheets);
             if (result.success) {
-                alert("Data saved successfully!");
+                alert(t('saveSuccess'));
             } else {
-                alert("Failed to save data: " + JSON.stringify(result.error));
+                alert(t('saveError')); // Simplified error message for user
             }
         } catch (e) {
             console.error(e);
-            alert("An error occurred while saving.");
+            alert(t('saveError'));
         } finally {
             setIsSaving(false);
         }
@@ -139,7 +139,7 @@ export function ExcelTable() {
         const newId = `sheet-${generateId()}`;
         const newSheet: Sheet = {
             id: newId,
-            name: `Sheet ${sheets.length + 1}`,
+            name: t('sheetName', { number: sheets.length + 1 }),
             tables: [createNewTable()],
         };
         setSheets([...sheets, newSheet]);
@@ -172,11 +172,6 @@ export function ExcelTable() {
             const table1 = createNewTable(DEFAULT_TBL1_COLUMNS, DEFAULT_TBL1_ROWS);
             // Second table
             const table2 = createNewTable(DEFAULT_TBL2_COLUMNS, DEFAULT_TBL2_ROWS);
-
-            // Check limits (we need space for potentially 2 tables)
-            // Existing logic replaces tables or appends? It appends.
-            // If we have 0 tables, fine. If we have 1, we can add 2 -> total 3 (limit).
-            // If we have 2, we can only add 1.
 
             const currentCount = activeSheet.tables.length;
             const newTables = [...activeSheet.tables];
@@ -231,7 +226,7 @@ export function ExcelTable() {
 
     const deleteSheet = (sheetId: string) => {
         if (sheets.length <= 1) {
-            alert("Last sheet cannot be deleted.");
+            alert(t('deleteLastSheetError'));
             return;
         }
 
@@ -272,7 +267,7 @@ export function ExcelTable() {
     };
 
     if (isLoading) {
-        return <div className="flex h-full items-center justify-center text-zinc-500">Loading company data...</div>;
+        return <div className="flex h-full items-center justify-center text-zinc-500">{t('loadingData')}</div>;
     }
 
     return (
@@ -280,11 +275,11 @@ export function ExcelTable() {
             <div className="flex items-center justify-between px-1 mt-[10px]">
                 <h2 className="text-lg font-semibold flex items-center gap-2">
                     <Layout className="w-5 h-5" />
-                    Workspace
+                    {t('workspace')}
                 </h2>
                 <div className="flex items-center gap-2">
                     <span className="text-xs text-muted-foreground mr-2">
-                        {activeSheet.tables.length} / 3 Tables
+                        {t('tablesCount', { count: activeSheet.tables.length, limit: 3 })}
                     </span>
 
                     {/* Template Button */}
@@ -296,22 +291,22 @@ export function ExcelTable() {
                         disabled={isSaving}
                     >
                         <Save className="w-4 h-4" />
-                        {isSaving ? "Saving..." : "Save Changes"}
+                        {isSaving ? t('saving') : t('saveChanges')}
                     </Button>
 
                     <Popover>
                         <PopoverTrigger asChild>
                             <Button variant="outline" size="sm" className="gap-2 text-zinc-600 dark:text-zinc-400">
-                                <LayoutTemplate className="w-4 h-4" /> Templates
+                                <LayoutTemplate className="w-4 h-4" /> {t('templates')}
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-72 p-3" align="end">
                             <div className="grid gap-4">
                                 <div className="space-y-2">
-                                    <h4 className="font-medium leading-none text-sm">Save Current</h4>
+                                    <h4 className="font-medium leading-none text-sm">{t('saveCurrent')}</h4>
                                     <div className="flex gap-2">
                                         <Input
-                                            placeholder="Template name..."
+                                            placeholder={t('templateNamePlaceholder')}
                                             className="h-8 text-xs"
                                             value={templateName}
                                             onChange={(e) => setTemplateName(e.target.value)}
@@ -322,27 +317,27 @@ export function ExcelTable() {
                                     </div>
                                 </div>
                                 <div className="space-y-2 pt-2 border-t">
-                                    <h4 className="font-medium leading-none text-sm">Load Template</h4>
+                                    <h4 className="font-medium leading-none text-sm">{t('loadTemplate')}</h4>
                                     <div className="grid gap-1 max-h-[200px] overflow-y-auto">
-                                        {savedTemplates.map(t => (
-                                            <div key={t.id} className="flex items-center gap-1 group/template">
+                                        {savedTemplates.map(template => (
+                                            <div key={template.id} className="flex items-center gap-1 group/template">
                                                 <Button
                                                     variant="ghost"
                                                     className="justify-start h-8 text-xs font-normal flex-1"
-                                                    onClick={() => loadTemplate(t)}
+                                                    onClick={() => loadTemplate(template)}
                                                     disabled={activeSheet.tables.length >= 3}
                                                 >
                                                     <FilePlus className="w-3 h-3 mr-2" />
-                                                    {t.name}
+                                                    {template.id === 'default-template' ? t('defaultTemplate') : template.name}
                                                 </Button>
-                                                {t.id !== 'default-template' && (
+                                                {template.id !== 'default-template' && (
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
                                                         className="h-8 w-8 text-muted-foreground hover:text-red-500 opacity-0 group-hover/template:opacity-100 transition-opacity"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
-                                                            deleteTemplate(t.id);
+                                                            deleteTemplate(template.id);
                                                         }}
                                                     >
                                                         <Trash2 className="w-3 h-3" />
@@ -350,7 +345,7 @@ export function ExcelTable() {
                                                 )}
                                             </div>
                                         ))}
-                                        {savedTemplates.length === 0 && <span className="text-xs text-muted-foreground p-1">No saved templates</span>}
+                                        {savedTemplates.length === 0 && <span className="text-xs text-muted-foreground p-1">{t('noTemplates')}</span>}
                                     </div>
                                 </div>
                             </div>
@@ -364,7 +359,7 @@ export function ExcelTable() {
                         className="gap-2"
                         disabled={activeSheet.tables.length >= 3}
                     >
-                        <Plus className="w-4 h-4" /> Add Table
+                        <Plus className="w-4 h-4" /> {t('addTable')}
                     </Button>
                 </div>
             </div>
@@ -415,7 +410,7 @@ export function ExcelTable() {
                 <button
                     onClick={addSheet}
                     className="px-4 py-2 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800 h-full flex items-center justify-center border-l bg-white/50 dark:bg-black/20"
-                    title="Add Sheet"
+                    title={t('addSheet')}
                 >
                     <Plus className="w-4 h-4" />
                 </button>

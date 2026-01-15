@@ -11,6 +11,7 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 import { OPTION_COLORS } from "@/lib/constants";
+import { useTranslations } from "next-intl";
 
 interface SortableSheetTabProps {
     sheet: Sheet;
@@ -36,6 +37,7 @@ export function SortableSheetTab({
     onColorChange,
     onDelete,
 }: SortableSheetTabProps) {
+    const t = useTranslations('Table');
     const {
         attributes,
         listeners,
@@ -123,7 +125,7 @@ export function SortableSheetTab({
                                     e.stopPropagation();
                                     onColorChange(sheet.id, ""); // Reset
                                 }}
-                                title="No Color"
+                                title={t('colorNone')}
                             >
                                 <span className="w-4 h-[1px] bg-zinc-400 rotate-45 transform" />
                             </button>
@@ -159,7 +161,7 @@ export function SortableSheetTab({
                     }}
                     // Stop pointer down propagation to avoid dragging when initiating delete
                     onPointerDown={(e) => e.stopPropagation()}
-                    title="Delete Sheet"
+                    title={t('deleteSheet')}
                 >
                     <X className="w-3 h-3" />
                 </button>

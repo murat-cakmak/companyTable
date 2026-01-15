@@ -9,6 +9,7 @@ import { getAuthenticatedUser } from "@/app/actions/auth";
 export async function fetchCompanyData(): Promise<Sheet[]> {
     try {
         const user = await getAuthenticatedUser();
+        if (!user || !user.companyId) return [];
         const companyId = user.companyId;
 
         const dbSheets = await prisma.sheet.findMany({
@@ -58,6 +59,7 @@ export async function fetchCompanyData(): Promise<Sheet[]> {
 export async function saveCompanyData(sheets: Sheet[]) {
     try {
         const user = await getAuthenticatedUser();
+        if (!user || !user.companyId) return { success: false, error: "Not authenticated" };
         const companyId = user.companyId;
 
         await prisma.$transaction(async (tx) => {

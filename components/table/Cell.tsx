@@ -20,6 +20,7 @@ import {
 import { cn, generateId } from "@/lib/utils";
 import { Cell, Column, SelectOption } from "@/types/table";
 import { COLORS, OPTION_COLORS } from "@/lib/constants";
+import { useTranslations } from "next-intl";
 
 interface TableCellProps {
     cell: Cell;
@@ -38,6 +39,7 @@ export function TableCell({
     onColorChange,
     onColumnUpdate,
 }: TableCellProps) {
+    const t = useTranslations('Cell');
     const col = column;
 
     // Helper to determine text color
@@ -70,10 +72,6 @@ export function TableCell({
     const deleteOptionFromColumn = (optionId: string) => {
         const newOptions = col.options?.filter((opt) => opt.id !== optionId);
         onColumnUpdate(col.id, { options: newOptions });
-        // Note: Clearing the cell value if it matches the deleted option should be handled by parent if needed, 
-        // but for now we focus on the column update. The parent might need to scan rows.
-        // In the original code, we scanned rows. Here we can't easily. 
-        // We'll leave it for now, or we can trigger a parent action.
     };
 
     return (
@@ -132,7 +130,7 @@ export function TableCell({
                                         {selectedOption.label}
                                     </span>
                                 ) : (
-                                    <span className="text-zinc-400">Select...</span>
+                                    <span className="text-zinc-400">{t('select')}</span>
                                 )}
                                 <ChevronDown className="w-3 h-3 text-zinc-300 opacity-0 group-hover/select:opacity-100 ml-auto" />
                             </button>
@@ -140,7 +138,7 @@ export function TableCell({
                         <PopoverContent className="p-0 w-[240px]" align="start">
                             <div className="p-2 border-b flex gap-1">
                                 <Input
-                                    placeholder="Find or create option..."
+                                    placeholder={t('findOption')}
                                     className="h-8 text-xs flex-1"
                                     onKeyDown={(e) => {
                                         if (e.key === "Enter") {
@@ -222,7 +220,7 @@ export function TableCell({
                                                 </PopoverTrigger>
                                                 <PopoverContent className="w-48 p-2">
                                                     <div className="space-y-2">
-                                                        <h4 className="font-medium text-xs">Rename Option</h4>
+                                                        <h4 className="font-medium text-xs">{t('renameOption')}</h4>
                                                         <div className="flex gap-2">
                                                             <Input
                                                                 defaultValue={option.label}
@@ -254,7 +252,7 @@ export function TableCell({
                                     </div>
                                 ))}
                                 {(!col.options || col.options.length === 0) && (
-                                    <div className="text-center text-xs text-zinc-400 py-4">No options</div>
+                                    <div className="text-center text-xs text-zinc-400 py-4">{t('noOptions')}</div>
                                 )}
                             </div>
                         </PopoverContent>
@@ -281,9 +279,9 @@ export function TableCell({
                     <PopoverContent className="p-3 w-80">
                         <div className="grid gap-2">
                             <div className="space-y-1">
-                                <h4 className="font-medium leading-none">Image URL</h4>
+                                <h4 className="font-medium leading-none">{t('imageUrl')}</h4>
                                 <p className="text-xs text-muted-foreground">
-                                    Paste an image URL to display.
+                                    {t('imageUrlDesc')}
                                 </p>
                             </div>
                             <div className="flex gap-2">
@@ -305,7 +303,7 @@ export function TableCell({
                                         onUpdate(input.value);
                                     }}
                                 >
-                                    Save
+                                    {t('save')}
                                 </Button>
                             </div>
                         </div>
@@ -339,7 +337,7 @@ export function TableCell({
                                         ))}
                                     </div>
                                 ) : (
-                                    <span className="text-zinc-400">Select...</span>
+                                    <span className="text-zinc-400">{t('select')}</span>
                                 )}
                                 <ChevronDown className="w-3 h-3 text-zinc-300 opacity-0 group-hover/select:opacity-100 ml-auto shrink-0" />
                             </button>
@@ -347,7 +345,7 @@ export function TableCell({
                         <PopoverContent className="p-0 w-[240px]" align="start">
                             <div className="p-2 border-b flex gap-1">
                                 <Input
-                                    placeholder="Create option..."
+                                    placeholder={t('createOption')}
                                     className="h-8 text-xs flex-1"
                                     onKeyDown={(e) => {
                                         if (e.key === "Enter") {
@@ -412,7 +410,7 @@ export function TableCell({
                                         </div>
                                     );
                                 })}
-                                {(!col.options || col.options.length === 0) && <div className="text-center text-xs text-zinc-400 py-4">No options</div>}
+                                {(!col.options || col.options.length === 0) && <div className="text-center text-xs text-zinc-400 py-4">{t('noOptions')}</div>}
                             </div>
                         </PopoverContent>
                     </Popover>
@@ -426,18 +424,18 @@ export function TableCell({
                         <button className="w-full h-full px-4 py-2 flex items-center hover:bg-black/5 dark:hover:bg-white/5 group/file">
                             {cell?.value ? (
                                 <div className="flex items-center gap-2 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-100 max-w-full truncate">
-                                    <span className="truncate">{cell.value.name || "Attachment"}</span>
+                                    <span className="truncate">{cell.value.name || t('attachment')}</span>
                                 </div>
                             ) : (
-                                <span className="text-zinc-300 text-xs flex items-center gap-1"><Plus className="w-3 h-3" /> Add</span>
+                                <span className="text-zinc-300 text-xs flex items-center gap-1"><Plus className="w-3 h-3" /> {t('add')}</span>
                             )}
                         </button>
                     </PopoverTrigger>
                     <PopoverContent className="p-3 w-80">
                         <div className="grid gap-4">
                             <div className="space-y-2">
-                                <h4 className="font-medium leading-none">Attachment</h4>
-                                <p className="text-xs text-muted-foreground">Upload a file or enter a URL.</p>
+                                <h4 className="font-medium leading-none">{t('attachment')}</h4>
+                                <p className="text-xs text-muted-foreground">{t('attachmentDesc')}</p>
                             </div>
                             <div className="grid gap-2">
                                 <Input
@@ -453,7 +451,7 @@ export function TableCell({
                                 />
                                 <div className="relative">
                                     <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-                                    <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Or</span></div>
+                                    <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">{t('or')}</span></div>
                                 </div>
                                 <div className="flex gap-2">
                                     <Input placeholder="https://..." className="h-8" onChange={(e) => {
@@ -472,7 +470,7 @@ export function TableCell({
                                     <Button size="sm" className="h-8" onClick={(e) => {
                                         const input = e.currentTarget.previousElementSibling as HTMLInputElement;
                                         if (input.value) onUpdate({ name: input.value, url: input.value, type: 'link' });
-                                    }}>Add</Button>
+                                    }}>{t('add')}</Button>
                                 </div>
                             </div>
                         </div>
@@ -524,19 +522,19 @@ export function TableCell({
                                 ★
                             </button>
                             <button
-                                className="w-8 h-8 rounded hover:bg-zinc-100 flex items-center justify-center text-zinc-400"
+                                className="w-8 h-8 rounded hover:bg-zinc-100 flex items-center justify-center text-zinc-400 text-xs font-bold"
                                 onClick={() => onUpdate("")}
                             >
-                                CLR
+                                {t('clear')}
                             </button>
                         </div>
                     </PopoverContent>
                 </Popover>
             )}
 
-
-            {/* Cell Settings Button */}
+            {/* Cell Settings Button (unchanged) */}
             <Popover>
+                {/* ... */}
                 <PopoverTrigger asChild>
                     <Button
                         variant="ghost"

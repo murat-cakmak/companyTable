@@ -1,45 +1,44 @@
-# Walkthrough - Company Table Enhancements
+# Internationalization (i18n) Implementation Walkthrough
 
-This walkthrough covers the recent major enhancements to the Company Table application, transforming it into a robust, spreadsheet-like tool.
+## Overview
+We have successfully implemented comprehensive internationalization for the application, supporting English (`en`) and Turkish (`tr`). This includes translating the Dashboard, Table Editor, Settings, Profile, User Management, and Campaign Management sections.
 
-## 🚀 Key Features Implemented
+## Key Changes
 
-### 1. Sheet Management
--   **Multi-Sheet Support**: Users can create, rename, and switch between multiple sheets.
--   **Drag & Drop**: Sheets can be reordered by dragging tabs (`@dnd-kit` integration).
--   **Tab Coloring**: Each sheet tab can be assigned a custom color for better organization.
+### 1. Configuration & Setup
+-   **`next-intl` Integration**: Configured `next-intl` for Next.js App Router.
+-   **Routing**: Implemented localized routing (e.g., `/en/dashboard`, `/tr/dashboard`).
+-   **Middleware**: Added middleware to handle locale matching and redirection.
 
-### 2. Advanced Resizing
--   **Column Width**: Column headers have resize handles to adjust width individually.
--   **Row Height**: Dragging the row index resize handle adjusts the **global row height** for consistency.
+### 2. Translation Files
+-   **`messages/en.json`**: Complete English translations.
+-   **`messages/tr.json`**: Complete Turkish translations.
+-   **Sections Covered**:
+    -   `Common`: General UI terms (Save, Cancel, Loading, etc.).
+    -   `Header`: Navigation and user menu.
+    -   `Dashboard`: Statistics and activity feed.
+    -   `Table`: Sheet and table management actions.
+    -   `TableDefaults`: Column types and default values.
+    -   `Cell`: Cell editing options.
+    -   `Settings`, `Profile`, `Users`, `Campaigns`, `Auth`, `Subscription`.
 
-### 3. Template System
--   **Defalt Templates**: The app initializes with rich default data (Company Documents, Project Tracking).
--   **Save/Load**: Users can save their current table structure as a template and load it later.
--   **Smart Default Handling**: The "Default Template" is protected and loads a specific multi-table structure.
+### 3. Component Updates
+-   **Server Components**: Updated `DashboardPage`, `SettingsPage`, etc., to use `getTranslations`.
+-   **Client Components**: Updated `ExcelTable`, `SingleTable`, `Cell`, `AppHeader`, `ThemeToggle` to use `useTranslations`.
+-   **Validation**: Added missing `null` checks for `currentUser` in server actions to fix build errors.
 
-### 4. Rich Data Types
--   **New Types**: Added `Date` and `Price` column types with specific cell renderers.
--   **Existing Types**: Text, Select, Multi-Select, File, Image, Icon.
+### 4. Build Fixes
+-   Fixed type errors in `SettingsPage` regarding `plan` and `subscriptionEndDate` props.
+-   Added authentication checks in `profile.ts`, `settings.ts`, `sheets.ts`, and `users.ts` server actions.
+-   Removed incompatible `prisma.config.ts`.
 
-### 5. UI/UX Improvements
--   **Thinner Header**: replaced the large hero section with a compact "Workspace" header.
--   **Full Height Layout**: The table now occupies the full viewport height.
--   **Clean Visuals**: Enhanced cell padding, border colors, and focus states.
+## Verification
+-   **Build Status**: ✅ `npm run build` passes successfully.
+-   **Language Switching**: Verified via `LanguageSwitcher` component in the header.
+-   **Fallback**: Dynamic content defaults to safe values (e.g., "Free" plan) if missing.
 
-## 🛠️ Technical Details
-
--   **Libraries**:
-    -   `@dnd-kit/core`, `@dnd-kit/sortable`: For drag-and-drop interactions.
--   **State Management**:
-    -   Refactored `ExcelTable` to handle complex state (sheets array, active sheet, resizing state).
--   **Performance**:
-    -   Optimized renders with specific resize handlers.
-    -   Fixed hydration mismatches for server-side rendering compatibility.
-
-## ✅ Verification
--   **Manual Testing**:
-    -   Drag and drop sheets -> Confirmed order changes.
-    -   Color tabs -> Confirmed visual indicator and border color.
-    -   Resize columns/rows -> Confirmed smooth resizing.
-    -   Load templates -> Confirmed correct data loading.
+## How to Test
+1.  Run the development server: `npm run dev`.
+2.  Navigate to `/` (redirects to `/en` or `/tr` based on browser).
+3.  Switch languages using the globe icon in the header.
+4.  Verify all texts in Dashboard, Table, and Settings update immediately.

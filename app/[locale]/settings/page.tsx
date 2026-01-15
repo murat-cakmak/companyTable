@@ -20,8 +20,8 @@ export default async function SettingsPage() {
 
             <SettingsForm
                 initialSettings={data.settings}
-                plan={data.plan}
-                subscriptionEndDate={data.subscriptionEndDate}
+                plan={data.plan || "Free"}
+                subscriptionEndDate={data.subscriptionEndDate || null}
             />
         </div>
     );

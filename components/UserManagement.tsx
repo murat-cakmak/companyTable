@@ -18,8 +18,11 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
 
 export function UserManagement({ initialUsers }: { initialUsers: UserData[] }) {
+    const t = useTranslations('Users');
     const [users, setUsers] = useState(initialUsers);
     const [isInviting, setIsInviting] = useState(false);
 
@@ -33,7 +36,7 @@ export function UserManagement({ initialUsers }: { initialUsers: UserData[] }) {
         setLoading(true);
         const res = await inviteUser(email, role);
         if (res.success) {
-            alert("User invited successfully!");
+            alert(t('invitedSuccess'));
             setEmail("");
             setIsInviting(false);
             // In a real app we'd re-fetch, but for now let's just reload or trust revalidate
@@ -45,12 +48,12 @@ export function UserManagement({ initialUsers }: { initialUsers: UserData[] }) {
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure you want to remove this user?")) return;
+        if (!confirm(t('deleteConfirm'))) return;
         const res = await deleteUser(id);
         if (res.success) {
             setUsers(users.filter(u => u.id !== id));
         } else {
-            alert("Failed to delete user");
+            alert(t('deleteError'));
         }
     };
 
@@ -62,22 +65,22 @@ export function UserManagement({ initialUsers }: { initialUsers: UserData[] }) {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
                     <input
                         className="w-full pl-9 pr-4 py-2 text-sm bg-zinc-50 dark:bg-zinc-800 border-none rounded-lg focus:ring-2 focus:ring-indigo-500/20 outline-none"
-                        placeholder="Search users..."
+                        placeholder={t('searchPlaceholder')}
                     />
                 </div>
                 <Button onClick={() => setIsInviting(!isInviting)} className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white">
                     <UserPlus className="w-4 h-4" />
-                    Invite Member
+                    {t('inviteMember')}
                 </Button>
             </div>
 
             {/* Invite Form (Inline for simplicity) */}
             {isInviting && (
                 <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-900/50 p-6 rounded-xl animate-in slide-in-from-top-2 duration-300">
-                    <h3 className="font-semibold text-indigo-900 dark:text-indigo-200 mb-4">Invite New Team Member</h3>
+                    <h3 className="font-semibold text-indigo-900 dark:text-indigo-200 mb-4">{t('inviteTitle')}</h3>
                     <form onSubmit={handleInvite} className="flex gap-4 items-end">
                         <div className="flex-1 space-y-2">
-                            <label className="text-xs font-medium text-zinc-500">Email Address</label>
+                            <label className="text-xs font-medium text-zinc-500">{t('emailAddress')}</label>
                             <div className="relative">
                                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
                                 <input
@@ -86,12 +89,12 @@ export function UserManagement({ initialUsers }: { initialUsers: UserData[] }) {
                                     value={email}
                                     onChange={e => setEmail(e.target.value)}
                                     className="w-full pl-9 pr-4 h-10 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-500/20 outline-none"
-                                    placeholder="colleague@company.com"
+                                    placeholder={t('emailPlaceholder')}
                                 />
                             </div>
                         </div>
                         <div className="w-48 space-y-2">
-                            <label className="text-xs font-medium text-zinc-500">Role</label>
+                            <label className="text-xs font-medium text-zinc-500">{t('role')}</label>
                             <div className="relative">
                                 <Shield className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
                                 <select
@@ -99,14 +102,14 @@ export function UserManagement({ initialUsers }: { initialUsers: UserData[] }) {
                                     onChange={e => setRole(e.target.value)}
                                     className="w-full pl-9 pr-4 h-10 text-sm border rounded-lg bg-white dark:bg-zinc-900 focus:ring-2 focus:ring-indigo-500/20 outline-none appearance-none"
                                 >
-                                    <option value="VIEWER">Viewer</option>
-                                    <option value="EDITOR">Editor</option>
-                                    <option value="COMPANY_ADMIN">Admin</option>
+                                    <option value="VIEWER">{t('roleViewer')}</option>
+                                    <option value="EDITOR">{t('roleEditor')}</option>
+                                    <option value="COMPANY_ADMIN">{t('roleAdmin')}</option>
                                 </select>
                             </div>
                         </div>
                         <Button type="submit" disabled={loading} className="h-10 bg-indigo-600 hover:bg-indigo-700 text-white w-32">
-                            {loading ? "Sending..." : "Send Invite"}
+                            {loading ? t('sending') : t('sendInvite')}
                         </Button>
                     </form>
                 </div>
@@ -117,10 +120,10 @@ export function UserManagement({ initialUsers }: { initialUsers: UserData[] }) {
                 <table className="w-full text-left text-sm">
                     <thead>
                         <tr className="border-b bg-zinc-50/50 dark:bg-zinc-800/50">
-                            <th className="px-6 py-4 font-medium text-zinc-500">User</th>
-                            <th className="px-6 py-4 font-medium text-zinc-500">Role</th>
-                            <th className="px-6 py-4 font-medium text-zinc-500">Joined</th>
-                            <th className="px-6 py-4 font-medium text-zinc-500 text-right">Actions</th>
+                            <th className="px-6 py-4 font-medium text-zinc-500">{t('tableUser')}</th>
+                            <th className="px-6 py-4 font-medium text-zinc-500">{t('tableRole')}</th>
+                            <th className="px-6 py-4 font-medium text-zinc-500">{t('tableJoined')}</th>
+                            <th className="px-6 py-4 font-medium text-zinc-500 text-right">{t('tableActions')}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y">
@@ -133,7 +136,7 @@ export function UserManagement({ initialUsers }: { initialUsers: UserData[] }) {
                                             <AvatarFallback>{user.name?.substring(0, 2).toUpperCase()}</AvatarFallback>
                                         </Avatar>
                                         <div>
-                                            <div className="font-medium text-zinc-900 dark:text-zinc-100">{user.name || "Unknown"}</div>
+                                            <div className="font-medium text-zinc-900 dark:text-zinc-100">{user.name || t('unknown')}</div>
                                             <div className="text-xs text-zinc-500">{user.email}</div>
                                         </div>
                                     </div>
@@ -162,7 +165,7 @@ export function UserManagement({ initialUsers }: { initialUsers: UserData[] }) {
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuItem className="text-red-600 gap-2" onClick={() => handleDelete(user.id)}>
-                                                <Trash2 className="w-4 h-4" /> Remove User
+                                                <Trash2 className="w-4 h-4" /> {t('removeUser')}
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
@@ -172,12 +175,11 @@ export function UserManagement({ initialUsers }: { initialUsers: UserData[] }) {
                     </tbody>
                 </table>
                 {users.length === 0 && (
-                    <div className="p-8 text-center text-zinc-500">No users found.</div>
+                    <div className="p-8 text-center text-zinc-500">{t('noUsers')}</div>
                 )}
             </div>
         </div>
     );
 }
 
-// Helper utility (if cn is not globally available in this file context, though usually imported)
-import { cn } from "@/lib/utils";
+

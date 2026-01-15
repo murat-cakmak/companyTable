@@ -10,23 +10,25 @@ import {
     TrendingUp,
     FileSpreadsheet
 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 export const dynamic = 'force-dynamic'; // Ensure stats are always fresh
 
 export default async function DashboardPage() {
     const stats = await fetchDashboardStats();
+    const t = await getTranslations('Dashboard');
 
     return (
         <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Dashboard</h1>
-                    <p className="text-zinc-500 dark:text-zinc-400 mt-1">Overview of your company's data and activity.</p>
+                    <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">{t('title')}</h1>
+                    <p className="text-zinc-500 dark:text-zinc-400 mt-1">{t('subtitle')}</p>
                 </div>
                 <Link href="/">
                     <button className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/20">
-                        Open Editor <ArrowRight className="ml-2 h-4 w-4" />
+                        {t('openEditor')} <ArrowRight className="ml-2 h-4 w-4" />
                     </button>
                 </Link>
             </div>
@@ -34,22 +36,22 @@ export default async function DashboardPage() {
             {/* Stats Grid */}
             <div className="grid gap-4 md:grid-cols-3">
                 <StatCard
-                    title="Total Sheets"
+                    title={t('totalSheets')}
                     value={stats.totalSheets}
                     icon={<FileSpreadsheet className="h-4 w-4 text-indigo-600" />}
-                    trend="+1 this week"
+                    trend={t('trendWeek')}
                 />
                 <StatCard
-                    title="Total Tables"
+                    title={t('totalTables')}
                     value={stats.totalTables}
                     icon={<TableIcon className="h-4 w-4 text-emerald-600" />}
-                    trend="Stable"
+                    trend={t('trendStable')}
                 />
                 <StatCard
-                    title="Total Rows"
+                    title={t('totalRows')}
                     value={stats.totalRows}
                     icon={<List className="h-4 w-4 text-amber-600" />}
-                    trend="+12% increase"
+                    trend={t('trendIncrease')}
                 />
             </div>
 
@@ -61,15 +63,15 @@ export default async function DashboardPage() {
                         <div className="flex items-center justify-between">
                             <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
                                 <Clock className="w-4 h-4 text-zinc-500" />
-                                Recent Sheets
+                                {t('recentSheets')}
                             </h3>
-                            <span className="text-xs text-zinc-500">Last 5 active sheets</span>
+                            <span className="text-xs text-zinc-500">{t('recentSheetsDesc')}</span>
                         </div>
 
                         {stats.recentSheets.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-40 text-center text-zinc-500">
-                                <p>No sheets found.</p>
-                                <Link href="/" className="text-indigo-600 hover:underline text-sm mt-2">Create your first sheet</Link>
+                                <p>{t('noSheets')}</p>
+                                <Link href="/" className="text-indigo-600 hover:underline text-sm mt-2">{t('createFirstSheet')}</Link>
                             </div>
                         ) : (
                             <div className="space-y-4">
@@ -81,12 +83,12 @@ export default async function DashboardPage() {
                                             </div>
                                             <div>
                                                 <p className="font-medium text-sm text-zinc-900 dark:text-zinc-100 group-hover:text-indigo-600 transition-colors">{sheet.name}</p>
-                                                <p className="text-xs text-zinc-500">Edited {new Date(sheet.updatedAt).toLocaleDateString()}</p>
+                                                <p className="text-xs text-zinc-500">{t('edited', { date: new Date(sheet.updatedAt).toLocaleDateString() })}</p>
                                             </div>
                                         </div>
                                         <Link href="/">
                                             <button className="text-xs font-medium text-zinc-500 hover:text-indigo-600 px-2 py-1 rounded bg-white dark:bg-zinc-800 border opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                                                Open
+                                                {t('open')}
                                             </button>
                                         </Link>
                                     </div>
@@ -100,7 +102,7 @@ export default async function DashboardPage() {
                 <div className="col-span-3 bg-white dark:bg-zinc-900 border rounded-xl shadow-sm p-6 flex flex-col">
                     <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-4 flex items-center gap-2">
                         <TrendingUp className="w-4 h-4 text-zinc-500" />
-                        Data Growth
+                        {t('dataGrowth')}
                     </h3>
                     <div className="flex-1 flex items-end justify-between gap-2 px-2 pb-2">
                         {/* Mock Charts */}
@@ -112,13 +114,13 @@ export default async function DashboardPage() {
                         ))}
                     </div>
                     <div className="flex justify-between text-xs text-zinc-400 mt-2 px-2">
-                        <span>Mon</span>
-                        <span>Tue</span>
-                        <span>Wed</span>
-                        <span>Thu</span>
-                        <span>Fri</span>
-                        <span>Sat</span>
-                        <span>Sun</span>
+                        <span>{t('days.mon')}</span>
+                        <span>{t('days.tue')}</span>
+                        <span>{t('days.wed')}</span>
+                        <span>{t('days.thu')}</span>
+                        <span>{t('days.fri')}</span>
+                        <span>{t('days.sat')}</span>
+                        <span>{t('days.sun')}</span>
                     </div>
                 </div>
             </div>

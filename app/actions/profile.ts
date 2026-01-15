@@ -8,6 +8,7 @@ import { cookies } from "next/headers";
 export async function updateProfile(data: { name: string }) {
     try {
         const currentUser = await getAuthenticatedUser();
+        if (!currentUser) return { success: false, error: "Not authenticated" };
 
         await prisma.user.update({
             where: { id: currentUser.id },
@@ -24,6 +25,7 @@ export async function updateProfile(data: { name: string }) {
 export async function changePassword(newPassword: string) {
     try {
         const currentUser = await getAuthenticatedUser();
+        if (!currentUser) return { success: false, error: "Not authenticated" };
 
         // In real app, old password verification is needed.
         const passwordHash = `HASH:${newPassword}`;

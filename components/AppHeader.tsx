@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, usePathname } from "@/i18n/routing"; // Updated import
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -37,6 +36,8 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useTranslations } from "next-intl";
 
 interface AppHeaderProps {
     currentUser?: User & { company?: Company };
@@ -44,6 +45,8 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({ currentUser, allCompanies = [] }: AppHeaderProps) {
+    const t = useTranslations("Common");
+    const tHeader = useTranslations("Header");
     const pathname = usePathname();
     const [open, setOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
@@ -64,13 +67,13 @@ export function AppHeader({ currentUser, allCompanies = [] }: AppHeaderProps) {
     };
 
     const links = [
-        { href: "/", label: "Editor" },
-        { href: "/dashboard", label: "Dashboard" },
-        { href: "/users", label: "Team" },
+        { href: "/", label: t('editor') },
+        { href: "/dashboard", label: t('dashboard') },
+        { href: "/users", label: t('team') },
     ];
 
     if (isSuperAdmin) {
-        links.push({ href: "/campaigns", label: "Campaigns" });
+        links.push({ href: "/campaigns", label: t('campaigns') });
     }
 
     // Notification Logic
@@ -80,8 +83,8 @@ export function AppHeader({ currentUser, allCompanies = [] }: AppHeaderProps) {
     if (currentUser?.mustChangePassword) {
         notifications.push({
             id: 'pass-security',
-            title: 'Security Alert',
-            description: 'You are using a temporary password. Update it now.',
+            title: tHeader('securityAlert'),
+            description: tHeader('securityDesc'),
             type: 'critical',
             href: '/profile',
             icon: ShieldAlert
@@ -98,13 +101,13 @@ export function AppHeader({ currentUser, allCompanies = [] }: AppHeaderProps) {
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
         // Subject handling
-        const subject = isSuperAdmin ? `${name} plan` : "Your plan";
+        const subject = isSuperAdmin ? `${name} plan` : tHeader('yourPlan');
 
         if (diffDays <= 14 && diffDays > 0) {
             return {
                 id: `sub-exp-${name}`,
-                title: 'Subscription Expiring',
-                description: `${subject} expires in ${diffDays} days.`,
+                title: tHeader('subExpiring'),
+                description: tHeader('subExpiringDesc', { subject, days: diffDays }),
                 type: 'warning',
                 href: '/campaigns', // Super admin goes to campaigns
                 icon: AlertTriangle
@@ -112,8 +115,8 @@ export function AppHeader({ currentUser, allCompanies = [] }: AppHeaderProps) {
         } else if (diffDays <= 0) {
             return {
                 id: `sub-ended-${name}`,
-                title: 'Subscription Expired',
-                description: `${subject} has expired.`,
+                title: tHeader('subExpired'),
+                description: tHeader('subExpiredDesc', { subject }),
                 type: 'critical',
                 href: '/campaigns',
                 icon: AlertTriangle
@@ -153,17 +156,17 @@ export function AppHeader({ currentUser, allCompanies = [] }: AppHeaderProps) {
                                     <span className="font-bold text-xs">{currentUser?.company?.name?.substring(0, 2).toUpperCase() || "CO"}</span>
                                 </span>
                                 <div className="flex flex-col items-start leading-none">
-                                    <span className="font-medium">{currentUser?.company?.name || "Select Company"}</span>
-                                    <span className="text-[10px] text-zinc-500 font-normal">Switch Workspace</span>
+                                    <span className="font-medium">{currentUser?.company?.name || tHeader('selectCompany')}</span>
+                                    <span className="text-[10px] text-zinc-500 font-normal">{tHeader('switchWorkspace')}</span>
                                 </div>
                                 <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-[200px] p-0">
                             <Command>
-                                <CommandInput placeholder="Search company..." />
+                                <CommandInput placeholder={tHeader('searchCompany')} />
                                 <CommandList>
-                                    <CommandEmpty>No company found.</CommandEmpty>
+                                    <CommandEmpty>{tHeader('noCompany')}</CommandEmpty>
                                     <CommandGroup>
                                         {allCompanies.map((company) => (
                                             <CommandItem
@@ -194,8 +197,8 @@ export function AppHeader({ currentUser, allCompanies = [] }: AppHeaderProps) {
                             <span className="font-bold text-xs">{currentUser?.company?.name?.substring(0, 2).toUpperCase() || "CO"}</span>
                         </span>
                         <div className="flex flex-col leading-none">
-                            <span className="font-semibold text-sm text-zinc-800 dark:text-zinc-200">{currentUser?.company?.name || "Company Data"}</span>
-                            <span className="text-[10px] text-zinc-500">Workspace</span>
+                            <span className="font-semibold text-sm text-zinc-800 dark:text-zinc-200">{currentUser?.company?.name || tHeader('companyData')}</span>
+                            <span className="text-[10px] text-zinc-500">{tHeader('workspace')}</span>
                         </div>
                         {isSuperAdmin && <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />}
                     </div>
@@ -237,14 +240,14 @@ export function AppHeader({ currentUser, allCompanies = [] }: AppHeaderProps) {
                     </PopoverTrigger>
                     <PopoverContent align="end" className="w-[340px] p-0 shadow-lg border-zinc-200 dark:border-zinc-800">
                         <div className="p-3 border-b bg-zinc-50/50 dark:bg-zinc-900/50 flex justify-between items-center">
-                            <span className="font-semibold text-sm">Notifications</span>
-                            <span className="text-xs text-zinc-500">{notifications.length} New</span>
+                            <span className="font-semibold text-sm">{t('notifications')}</span>
+                            <span className="text-xs text-zinc-500">{notifications.length} {tHeader('new')}</span>
                         </div>
                         <div className="max-h-[300px] overflow-y-auto p-1">
                             {notifications.length === 0 ? (
                                 <div className="p-8 text-center text-zinc-500 text-sm flex flex-col items-center gap-2">
                                     <Bell className="w-8 h-8 opacity-20" />
-                                    No new notifications
+                                    {tHeader('noNotifications')}
                                 </div>
                             ) : (
                                 notifications.map((n, i) => (
@@ -258,9 +261,7 @@ export function AppHeader({ currentUser, allCompanies = [] }: AppHeaderProps) {
                                             <p className={cn("text-sm font-semibold", n.type === 'critical' ? 'text-red-600' : 'text-zinc-900 dark:text-zinc-200')}>
                                                 {n.title}
                                             </p>
-                                            <p className="text-xs text-zinc-500 mt-1 leading-snug">
-                                                {n.description}
-                                            </p>
+                                            <p dangerouslySetInnerHTML={{ __html: n.description }} className="text-xs text-zinc-500 mt-1 leading-snug" />
                                         </div>
                                     </Link>
                                 ))
@@ -271,9 +272,9 @@ export function AppHeader({ currentUser, allCompanies = [] }: AppHeaderProps) {
 
                 <div className="h-6 w-px bg-zinc-200 dark:bg-zinc-800 mx-2 hidden md:block"></div>
 
-                <ThemeToggle />
+                <LanguageSwitcher />
 
-                {/* Notifications */}
+                <ThemeToggle />
 
                 {/* User Menu */}
                 <DropdownMenu>
@@ -297,21 +298,21 @@ export function AppHeader({ currentUser, allCompanies = [] }: AppHeaderProps) {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
                             <Link href="/profile" className="cursor-pointer w-full flex items-center justify-between">
-                                Profile
+                                {t('profile')}
                                 {currentUser?.mustChangePassword && (
                                     <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                                 )}
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                            <Link href="/settings" className="cursor-pointer w-full">Billing</Link>
+                            <Link href="/settings" className="cursor-pointer w-full">{t('billing')}</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                            <Link href="/settings" className="cursor-pointer w-full">Settings</Link>
+                            <Link href="/settings" className="cursor-pointer w-full">{t('settings')}</Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="text-red-600 font-medium focus:bg-red-50 dark:focus:bg-red-900/20 cursor-pointer" onSelect={handleLogout}>
-                            Log out
+                            {t('logout')}
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

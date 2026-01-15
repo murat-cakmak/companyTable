@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Lock, CreditCard } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 interface SubscriptionLockModalProps {
     endDate: Date | string | null | undefined;
@@ -15,6 +16,7 @@ interface SubscriptionLockModalProps {
 }
 
 export function SubscriptionLockModal({ endDate, role }: SubscriptionLockModalProps) {
+    const t = useTranslations('Subscription');
     const [isLocked, setIsLocked] = useState(false);
     const pathname = usePathname();
 
@@ -67,12 +69,12 @@ export function SubscriptionLockModal({ endDate, role }: SubscriptionLockModalPr
                             <Lock className="w-10 h-10 text-red-600 dark:text-red-400" />
                         </div>
                         <DialogTitle className="text-2xl font-bold text-red-600 dark:text-red-400">
-                            Subscription Suspended
+                            {t('suspendedTitle')}
                         </DialogTitle>
                         <DialogDescription className="text-base pt-2 text-zinc-600 dark:text-zinc-400">
-                            Your subscription expired more than a week ago.
-                            <br />
-                            Access to the platform has been restricted until the outstanding payment is settled.
+                            {t.rich('suspendedDesc', {
+                                br: () => <br />
+                            })}
                         </DialogDescription>
                     </DialogHeader>
 
@@ -80,21 +82,21 @@ export function SubscriptionLockModal({ endDate, role }: SubscriptionLockModalPr
                         {role === 'COMPANY_ADMIN' ? (
                             <>
                                 <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md p-3 text-sm text-amber-800 dark:text-amber-200 mb-2">
-                                    <p className="font-medium">Action Required</p>
-                                    <p>Please update your billing information or make a payment to restore access immediately.</p>
+                                    <p className="font-medium">{t('actionRequired')}</p>
+                                    <p>{t('adminActionDesc')}</p>
                                 </div>
 
                                 <Button asChild size="lg" className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold">
                                     <Link href="/settings">
                                         <CreditCard className="w-4 h-4 mr-2" />
-                                        Proceed to Payment
+                                        {t('proceedPayment')}
                                     </Link>
                                 </Button>
                             </>
                         ) : (
                             <div className="bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md p-4 text-sm text-zinc-600 dark:text-zinc-400 text-center">
-                                <p className="font-medium mb-1 text-zinc-900 dark:text-zinc-100">Access Restricted</p>
-                                <p>Please contact your company administrator to resolve the subscription issue.</p>
+                                <p className="font-medium mb-1 text-zinc-900 dark:text-zinc-100">{t('accessRestricted')}</p>
+                                <p>{t('userRestrictedDesc')}</p>
                             </div>
                         )}
                     </div>

@@ -12,6 +12,7 @@ import { cn, generateId } from "@/lib/utils";
 import { Column, Row, ColumnType, SelectOption, TableData } from "@/types/table";
 import { TableCell } from "@/components/table/Cell";
 import { COLORS, OPTION_COLORS } from "@/lib/constants";
+import { useTranslations } from "next-intl";
 
 interface SingleTableProps {
     tableData: TableData;
@@ -20,6 +21,7 @@ interface SingleTableProps {
 }
 
 export function SingleTable({ tableData, onUpdate, onDelete }: SingleTableProps) {
+    const t = useTranslations('TableDefaults');
     const { id: tableId, columns, rows } = tableData;
 
     // --- Actions ---
@@ -30,15 +32,15 @@ export function SingleTable({ tableData, onUpdate, onDelete }: SingleTableProps)
         let initialOptions: SelectOption[] | undefined;
         if (type === "select" || type === "multi-select") {
             initialOptions = [
-                { id: generateId(), label: "Done", color: "#dcfce7" },
-                { id: generateId(), label: "In Progress", color: "#ffedd5" },
-                { id: generateId(), label: "To Do", color: "#f1f5f9" },
+                { id: generateId(), label: t('done'), color: "#dcfce7" },
+                { id: generateId(), label: t('inProgress'), color: "#ffedd5" },
+                { id: generateId(), label: t('toDo'), color: "#f1f5f9" },
             ];
         }
 
         const newColumn: Column = {
             id: newColId,
-            header: `Column ${columns.length + 1}`,
+            header: t('columnTitle', { number: columns.length + 1 }),
             type,
             options: initialOptions,
         };
@@ -229,73 +231,73 @@ export function SingleTable({ tableData, onUpdate, onDelete }: SingleTableProps)
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Button onClick={addRow} variant="outline" size="sm" className="gap-2 h-7 text-xs">
-                        <Plus className="w-3 h-3" /> Row
+                        <Plus className="w-3 h-3" /> {t('row')}
                     </Button>
 
                     <Popover open={isAddColumnOpen} onOpenChange={setIsAddColumnOpen}>
                         <PopoverTrigger asChild>
                             <Button variant="outline" size="sm" className="gap-2 h-7 text-xs">
-                                <Plus className="w-3 h-3" /> Column
+                                <Plus className="w-3 h-3" /> {t('column')}
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-56 p-2" align="start">
                             <div className="grid gap-2">
-                                <div className="font-medium text-xs text-muted-foreground px-2">Column Type</div>
+                                <div className="font-medium text-xs text-muted-foreground px-2">{t('columnType')}</div>
                                 <Button
                                     variant="ghost"
                                     className="justify-start gap-2 h-8 text-sm"
                                     onClick={() => { addColumn("text"); setIsAddColumnOpen(false); }}
                                 >
-                                    <Type className="w-3 h-3" /> Text
+                                    <Type className="w-3 h-3" /> {t('typeText')}
                                 </Button>
                                 <Button
                                     variant="ghost"
                                     className="justify-start gap-2 h-8 text-sm"
                                     onClick={() => { addColumn("select"); setIsAddColumnOpen(false); }}
                                 >
-                                    <List className="w-3 h-3" /> Dropdown
+                                    <List className="w-3 h-3" /> {t('typeDropdown')}
                                 </Button>
                                 <Button
                                     variant="ghost"
                                     className="justify-start gap-2 h-8 text-sm"
                                     onClick={() => { addColumn("multi-select"); setIsAddColumnOpen(false); }}
                                 >
-                                    <CheckSquare className="w-3 h-3" /> Multi Select
+                                    <CheckSquare className="w-3 h-3" /> {t('typeMultiSelect')}
                                 </Button>
                                 <Button
                                     variant="ghost"
                                     className="justify-start gap-2 h-8 text-sm"
                                     onClick={() => { addColumn("file"); setIsAddColumnOpen(false); }}
                                 >
-                                    <Paperclip className="w-3 h-3" /> File
+                                    <Paperclip className="w-3 h-3" /> {t('typeFile')}
                                 </Button>
                                 <Button
                                     variant="ghost"
                                     className="justify-start gap-2 h-8 text-sm"
                                     onClick={() => { addColumn("date"); setIsAddColumnOpen(false); }}
                                 >
-                                    <Calendar className="w-3 h-3" /> Date
+                                    <Calendar className="w-3 h-3" /> {t('typeDate')}
                                 </Button>
                                 <Button
                                     variant="ghost"
                                     className="justify-start gap-2 h-8 text-sm"
                                     onClick={() => { addColumn("price"); setIsAddColumnOpen(false); }}
                                 >
-                                    <DollarSign className="w-3 h-3" /> Price
+                                    <DollarSign className="w-3 h-3" /> {t('typePrice')}
                                 </Button>
                                 <Button
                                     variant="ghost"
                                     className="justify-start gap-2 h-8 text-sm"
                                     onClick={() => { addColumn("image"); setIsAddColumnOpen(false); }}
                                 >
-                                    <ImageIcon className="w-3 h-3" /> Image
+                                    <ImageIcon className="w-3 h-3" /> {t('typeImage')}
                                 </Button>
                                 <Button
                                     variant="ghost"
                                     className="justify-start gap-2 h-8 text-sm"
                                     onClick={() => { addColumn("icon"); setIsAddColumnOpen(false); }}
                                 >
-                                    <Sparkles className="w-3 h-3" /> Icon
+                                    <Sparkles className="w-3 h-3" /> {t('typeIcon')}
                                 </Button>
                             </div>
                         </PopoverContent>
@@ -308,7 +310,7 @@ export function SingleTable({ tableData, onUpdate, onDelete }: SingleTableProps)
                         size="icon"
                         className="h-7 w-7 text-muted-foreground hover:text-red-500"
                         onClick={() => onDelete(tableId)}
-                        title="Delete Table"
+                        title={t('deleteTable')}
                     >
                         <Trash2 className="w-3 h-3" />
                     </Button>
@@ -432,7 +434,7 @@ export function SingleTable({ tableData, onUpdate, onDelete }: SingleTableProps)
 
                     {rows.length === 0 && (
                         <div className="p-8 text-center text-zinc-500 text-xs">
-                            No rows
+                            {t('noRows')}
                         </div>
                     )}
                 </div>

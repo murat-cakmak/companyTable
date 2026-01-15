@@ -14,6 +14,7 @@ export interface CompanySettings {
 export async function fetchCompanySettings() {
     try {
         const user = await getAuthenticatedUser();
+        if (!user || !user.companyId) return null;
         const company = await prisma.company.findUnique({
             where: { id: user.companyId },
             select: { settings: true, plan: true, subscriptionEndDate: true }
@@ -32,6 +33,7 @@ export async function fetchCompanySettings() {
 export async function updateCompanySettings(settings: CompanySettings) {
     try {
         const user = await getAuthenticatedUser();
+        if (!user || !user.companyId) return { success: false, error: "Not authenticated" };
 
         // Authorization check: Only ADMIN, COMPANY_ADMIN, SUPER_ADMIN
         if (!['ADMIN', 'COMPANY_ADMIN', 'SUPER_ADMIN'].includes(user.role)) {

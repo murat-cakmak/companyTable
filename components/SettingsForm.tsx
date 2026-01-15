@@ -12,6 +12,7 @@ import {
     LayoutTemplate
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 interface SettingsFormProps {
     initialSettings: CompanySettings;
@@ -20,6 +21,8 @@ interface SettingsFormProps {
 }
 
 export function SettingsForm({ initialSettings, plan, subscriptionEndDate }: SettingsFormProps) {
+    const t = useTranslations('Settings');
+    const tCommon = useTranslations('Common');
     const [settings, setSettings] = useState<CompanySettings>(initialSettings);
     const [loading, setLoading] = useState(false);
     const [activeTab, setActiveTab] = useState<'branding' | 'preferences'>('branding');
@@ -29,9 +32,9 @@ export function SettingsForm({ initialSettings, plan, subscriptionEndDate }: Set
         setLoading(true);
         const res = await updateCompanySettings(settings);
         if (res.success) {
-            alert("Settings saved successfully!");
+            alert(t('saved'));
         } else {
-            alert("Failed to save settings");
+            alert(t('saveError'));
         }
         setLoading(false);
     };
@@ -54,7 +57,7 @@ export function SettingsForm({ initialSettings, plan, subscriptionEndDate }: Set
                     )}
                 >
                     <Palette className="w-4 h-4" />
-                    Branding
+                    {t('branding')}
                 </button>
                 <button
                     onClick={() => setActiveTab('preferences')}
@@ -66,22 +69,22 @@ export function SettingsForm({ initialSettings, plan, subscriptionEndDate }: Set
                     )}
                 >
                     <Globe className="w-4 h-4" />
-                    Regional & Preferences
+                    {t('regionalPreferences')}
                 </button>
 
                 <div className="pt-6 mt-6 border-t border-zinc-100 dark:border-zinc-800">
                     <div className="px-4">
-                        <h4 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Subscription</h4>
+                        <h4 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">{t('subscription')}</h4>
                         <div className="bg-zinc-50 dark:bg-zinc-900 rounded-lg border p-4 space-y-3">
                             <div className="flex items-center gap-2">
                                 <CreditCard className="w-4 h-4 text-indigo-500" />
-                                <span className="font-semibold text-sm">{plan} Plan</span>
+                                <span className="font-semibold text-sm">{t('plan', { plan })}</span>
                             </div>
                             <div className="text-xs text-zinc-500" suppressHydrationWarning>
-                                Expires: {subscriptionEndDate ? new Date(subscriptionEndDate).toLocaleDateString() : "Lifetime"}
+                                {t('expires', { date: subscriptionEndDate ? new Date(subscriptionEndDate).toLocaleDateString() : t('lifetime') })}
                             </div>
                             <Button variant="outline" size="sm" className="w-full text-xs h-7">
-                                Manage Billing
+                                {t('manageBilling')}
                             </Button>
                         </div>
                     </div>
@@ -94,17 +97,17 @@ export function SettingsForm({ initialSettings, plan, subscriptionEndDate }: Set
                     <div className="flex items-center justify-between mb-8">
                         <div>
                             <h2 className="text-xl font-bold">
-                                {activeTab === 'branding' ? "Company Branding" : "Preferences"}
+                                {activeTab === 'branding' ? t('companyBranding') : t('preferences')}
                             </h2>
                             <p className="text-sm text-zinc-500 mt-1">
                                 {activeTab === 'branding'
-                                    ? "Customize how your company dashboard looks."
-                                    : "Set regional formats and default behaviors."}
+                                    ? t('brandingDesc')
+                                    : t('regionalPreferencesDesc')}
                             </p>
                         </div>
                         <Button type="submit" disabled={loading} className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2">
                             <Save className="w-4 h-4" />
-                            {loading ? "Saving..." : "Save Changes"}
+                            {loading ? tCommon('loading') : tCommon('save')}
                         </Button>
                     </div>
 
@@ -113,7 +116,7 @@ export function SettingsForm({ initialSettings, plan, subscriptionEndDate }: Set
                             <div className="space-y-2">
                                 <label className="text-sm font-medium flex items-center gap-2">
                                     <ImageIcon className="w-4 h-4 text-zinc-400" />
-                                    Company Logo URL
+                                    {t('companyLogoUrl')}
                                 </label>
                                 <div className="flex gap-4">
                                     <div className="flex-1">
@@ -133,13 +136,13 @@ export function SettingsForm({ initialSettings, plan, subscriptionEndDate }: Set
                                         )}
                                     </div>
                                 </div>
-                                <p className="text-xs text-zinc-500">Recommended size: 200x50px transparent PNG.</p>
+                                <p className="text-xs text-zinc-500">{t('logoHint')}</p>
                             </div>
 
                             <div className="space-y-2">
                                 <label className="text-sm font-medium flex items-center gap-2">
                                     <Palette className="w-4 h-4 text-zinc-400" />
-                                    Brand Color
+                                    {t('brandColor')}
                                 </label>
                                 <div className="flex gap-3 items-center">
                                     <input
@@ -156,7 +159,7 @@ export function SettingsForm({ initialSettings, plan, subscriptionEndDate }: Set
                                         maxLength={7}
                                     />
                                 </div>
-                                <p className="text-xs text-zinc-500">Primary color used for buttons and highlights.</p>
+                                <p className="text-xs text-zinc-500">{t('brandColorHint')}</p>
                             </div>
                         </div>
                     )}
@@ -164,7 +167,7 @@ export function SettingsForm({ initialSettings, plan, subscriptionEndDate }: Set
                     {activeTab === 'preferences' && (
                         <div className="space-y-6">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Date Format</label>
+                                <label className="text-sm font-medium">{t('dateFormat')}</label>
                                 <select
                                     value={settings.dateFormat || "DD.MM.YYYY"}
                                     onChange={e => updateField('dateFormat', e.target.value)}
@@ -177,7 +180,7 @@ export function SettingsForm({ initialSettings, plan, subscriptionEndDate }: Set
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Currency</label>
+                                <label className="text-sm font-medium">{t('currency')}</label>
                                 <select
                                     value={settings.currency || "USD"}
                                     onChange={e => updateField('currency', e.target.value)}

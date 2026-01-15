@@ -16,7 +16,8 @@
         "notifications": "Notifications",
         "light": "Light",
         "dark": "Dark",
-        "system": "System"
+        "system": "System",
+        "areYouSure": "Are you sure you want to proceed with this deletion? This action cannot be undone."
     },
     "Header": {
         "selectCompany": "Select Company",

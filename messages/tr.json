@@ -16,7 +16,8 @@
         "notifications": "Bildirimler",
         "light": "Açık",
         "dark": "Koyu",
-        "system": "Sistem"
+        "system": "Sistem",
+        "areYouSure": "Bu silme işlemine devam etmek istediğinizden emin misiniz? Bu işlem geri alınamaz."
     },
     "Header": {
         "selectCompany": "Şirket Seç",

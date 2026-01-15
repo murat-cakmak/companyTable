@@ -22,6 +22,7 @@ interface SingleTableProps {
 
 export function SingleTable({ tableData, onUpdate, onDelete }: SingleTableProps) {
     const t = useTranslations('TableDefaults');
+    const tCommon = useTranslations('Common');
     const { id: tableId, columns, rows } = tableData;
 
     // --- Actions ---
@@ -103,6 +104,7 @@ export function SingleTable({ tableData, onUpdate, onDelete }: SingleTableProps)
     };
 
     const deleteColumn = (colId: string) => {
+        if (!confirm(tCommon('areYouSure'))) return;
         const newColumns = columns.filter((col) => col.id !== colId);
         const newRows = rows.map((row) => {
             const newCells = { ...row.cells };
@@ -113,6 +115,7 @@ export function SingleTable({ tableData, onUpdate, onDelete }: SingleTableProps)
     };
 
     const deleteRow = (rowId: string) => {
+        if (!confirm(tCommon('areYouSure'))) return;
         const newRows = rows.filter((row) => row.id !== rowId);
         onUpdate(tableId, { rows: newRows });
     };

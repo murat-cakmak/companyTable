@@ -24,6 +24,7 @@ import {
 
 export function ExcelTable() {
     const t = useTranslations('Table');
+    const tCommon = useTranslations('Common');
 
     const createNewTable = (columns?: Column[], rows?: Row[]): TableData => {
         const newTableId = `table-${generateId()}`;
@@ -192,6 +193,7 @@ export function ExcelTable() {
 
     const deleteTemplate = (templateId: string) => {
         if (templateId === 'default-template') return;
+        if (!confirm(tCommon('areYouSure'))) return;
         setSavedTemplates(savedTemplates.filter(t => t.id !== templateId));
     };
 
@@ -203,6 +205,7 @@ export function ExcelTable() {
     };
 
     const deleteTable = (tableId: string) => {
+        if (!confirm(tCommon('areYouSure'))) return;
         const newTables = activeSheet.tables.filter(t => t.id !== tableId);
         updateActiveSheet({ tables: newTables });
     };
@@ -229,6 +232,8 @@ export function ExcelTable() {
             alert(t('deleteLastSheetError'));
             return;
         }
+
+        if (!confirm(tCommon('areYouSure'))) return;
 
         const newSheets = sheets.filter(s => s.id !== sheetId);
         setSheets(newSheets);

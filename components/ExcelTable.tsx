@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { toast } from "sonner";
 import { Plus, Layout, LayoutTemplate, Save, FilePlus, Trash2 } from "lucide-react";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, horizontalListSortingStrategy } from '@dnd-kit/sortable';
@@ -111,13 +112,13 @@ export function ExcelTable() {
             const { saveCompanyData } = await import("@/app/actions/sheets");
             const result = await saveCompanyData(sheets);
             if (result.success) {
-                alert(t('saveSuccess'));
+                toast.success(t('saveSuccess'));
             } else {
-                alert(t('saveError')); // Simplified error message for user
+                toast.error(t('saveError'));
             }
         } catch (e) {
             console.error(e);
-            alert(t('saveError'));
+            toast.error(t('saveError'));
         } finally {
             setIsSaving(false);
         }

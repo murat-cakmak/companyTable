@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Toaster } from 'sonner';
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import { AppHeader } from "@/components/AppHeader";
@@ -80,6 +81,7 @@ export default async function RootLayout({
             <div className="flex-1 overflow-hidden flex flex-col">
               {children}
             </div>
+            <Toaster richColors closeButton position="top-right" duration={3000} />
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>

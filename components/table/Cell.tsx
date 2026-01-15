@@ -79,7 +79,7 @@ export function TableCell({
             {/* TEXT TYPE */}
             {col.type === "text" && (
                 <input
-                    className="w-full h-full pl-4 pr-9 py-3 bg-transparent border-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none"
+                    className="w-full h-full px-3 py-3 bg-transparent border-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none"
                     value={cell?.value || ""}
                     onChange={(e) => onUpdate(e.target.value)}
                 />
@@ -91,7 +91,7 @@ export function TableCell({
             {col.type === "date" && (
                 <input
                     type="date"
-                    className="w-full h-full pl-4 pr-9 py-3 bg-transparent border-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white dark:focus:bg-zinc-800 transition-all outline-none text-xs font-mono text-zinc-600 dark:text-zinc-200 dark:[color-scheme:dark] [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:mr-5"
+                    className="w-full h-full px-3 py-3 bg-transparent border-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white dark:focus:bg-zinc-800 transition-all outline-none text-xs font-mono text-zinc-600 dark:text-zinc-200 dark:[color-scheme:dark] [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                     value={cell?.value || ""}
                     onChange={(e) => onUpdate(e.target.value)}
                 />
@@ -103,7 +103,7 @@ export function TableCell({
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs font-medium">₺</span>
                     <input
                         type="number"
-                        className="w-full h-full pl-7 pr-9 py-3 bg-transparent border-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white dark:focus:bg-zinc-800 transition-all outline-none text-xs font-mono text-zinc-700 dark:text-zinc-200"
+                        className="w-full h-full pl-7 pr-2 py-3 bg-transparent border-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white dark:focus:bg-zinc-800 transition-all outline-none text-xs font-mono text-zinc-700 dark:text-zinc-200"
                         placeholder="0.00"
                         value={cell?.value || ""}
                         onChange={(e) => onUpdate(e.target.value)}
@@ -532,31 +532,6 @@ export function TableCell({
                 </Popover>
             )}
 
-            {/* Cell Settings Button (unchanged) */}
-            <Popover>
-                {/* ... */}
-                <PopoverTrigger asChild>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-1 top-1/2 -translate-y-1/2 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity z-10 bg-white/80 backdrop-blur-sm shadow-sm"
-                    >
-                        <Settings2 className="w-3 h-3 text-zinc-500" />
-                    </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-40 p-2" align="start">
-                    <div className="grid grid-cols-5 gap-1">
-                        {COLORS.map((color) => (
-                            <button
-                                key={color}
-                                className="w-6 h-6 rounded-full border border-zinc-200 cursor-pointer hover:scale-110 transition-transform"
-                                style={{ backgroundColor: color }}
-                                onClick={() => onColorChange(color)}
-                            />
-                        ))}
-                    </div>
-                </PopoverContent>
-            </Popover>
         </div>
     );
 }

@@ -12,7 +12,7 @@ Create a `.env` file on your server (in the root of your project folder) with th
 ```env
 # Database Connection (PostgreSQL)
 # Format: postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public
-DATABASE_URL="postgresql://company_user:YOUR_STRONG_PASSWORD@localhost:5432/company_table_db?schema=public"
+DATABASE_URL="postgresql://company_user:YOUR_STRONG_PASSWORD@localhost:5432/company_table?schema=public"
 
 # Next.js Server App URL
 NEXT_PUBLIC_APP_URL="https://your-domain.com"
@@ -58,13 +58,13 @@ sudo systemctl enable postgresql
     CREATE USER company_user WITH PASSWORD 'YOUR_STRONG_PASSWORD';
 
     -- Create the database
-    CREATE DATABASE company_table_db;
+    CREATE DATABASE company_table;
 
     -- Grant privileges
-    GRANT ALL PRIVILEGES ON DATABASE company_table_db TO company_user;
+    GRANT ALL PRIVILEGES ON DATABASE company_table TO company_user;
 
     -- Connect to the new database to grant schema permissions
-    \c company_table_db
+    \c company_table
 
     -- Grant schema public access (required for Prisma)
     GRANT ALL ON SCHEMA public TO company_user;

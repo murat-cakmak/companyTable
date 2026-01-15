@@ -103,7 +103,7 @@ async function main() {
             name: 'Murat Çakmak',
             role: Role.COMPANY_ADMIN,
             companyId: company.id,
-            passwordHash: 'm.123456',
+            passwordHash: '$2b$10$jUB7vPQVL0gjGyctZneZmeizsNuynLcZYgYu5McBzSL81vQ.NM4ry',
         },
     });
     console.log(`Synced admin user: ${admin.email}`);

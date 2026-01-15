@@ -36,6 +36,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface AppHeaderProps {
     currentUser?: User & { company?: Company };
@@ -268,7 +269,11 @@ export function AppHeader({ currentUser, allCompanies = [] }: AppHeaderProps) {
                     </PopoverContent>
                 </Popover>
 
-                <div className="h-6 w-px bg-zinc-200 dark:bg-zinc-800 hidden sm:block"></div>
+                <div className="h-6 w-px bg-zinc-200 dark:bg-zinc-800 mx-2 hidden md:block"></div>
+
+                <ThemeToggle />
+
+                {/* Notifications */}
 
                 {/* User Menu */}
                 <DropdownMenu>

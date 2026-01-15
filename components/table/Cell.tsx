@@ -25,7 +25,7 @@ interface TableCellProps {
     cell: Cell;
     column: Column;
     rowId: string;
-    onUpdate: (value: string) => void;
+    onUpdate: (value: any) => void;
     onColorChange: (color: string) => void;
     onColumnUpdate: (columnId: string, updates: Partial<Column>) => void;
 }
@@ -40,9 +40,22 @@ export function TableCell({
 }: TableCellProps) {
     const col = column;
 
+    // Helper to determine text color
+    const getTextColor = (bgColor: string) => {
+        if (!bgColor) return "inherit";
+        const lower = bgColor.toLowerCase();
+        // Check hardcoded lights
+        if (["#f3f4f6", "#ffffff", "#f8fafc", "#f9fafb"].includes(lower)) return "#18181b";
+        // Check known pastels from constants
+        const isPastel = OPTION_COLORS.some(c => c.value.toLowerCase() === lower);
+        if (isPastel) return "#18181b";
+
+        return "#ffffff";
+    };
+
     // --- Select Logic Helpers ---
     const addOptionToColumn = (label: string) => {
-        const color = OPTION_COLORS[Math.floor(Math.random() * OPTION_COLORS.length)].value;
+        const color = OPTION_COLORS[Math.floor(Math.random() * OPTION_COLORS.length)].text;
         const newOption: SelectOption = { id: generateId(), label, color };
         onColumnUpdate(col.id, { options: [...(col.options || []), newOption] });
     };
@@ -80,7 +93,7 @@ export function TableCell({
             {col.type === "date" && (
                 <input
                     type="date"
-                    className="w-full h-full pl-4 pr-9 py-3 bg-transparent border-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none text-xs font-mono text-zinc-600 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:mr-5"
+                    className="w-full h-full pl-4 pr-9 py-3 bg-transparent border-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white dark:focus:bg-zinc-800 transition-all outline-none text-xs font-mono text-zinc-600 dark:text-zinc-200 dark:[color-scheme:dark] [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:mr-5"
                     value={cell?.value || ""}
                     onChange={(e) => onUpdate(e.target.value)}
                 />
@@ -92,7 +105,7 @@ export function TableCell({
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs font-medium">₺</span>
                     <input
                         type="number"
-                        className="w-full h-full pl-7 pr-9 py-3 bg-transparent border-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none text-xs font-mono text-zinc-700"
+                        className="w-full h-full pl-7 pr-9 py-3 bg-transparent border-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white dark:focus:bg-zinc-800 transition-all outline-none text-xs font-mono text-zinc-700 dark:text-zinc-200"
                         placeholder="0.00"
                         value={cell?.value || ""}
                         onChange={(e) => onUpdate(e.target.value)}
@@ -110,7 +123,11 @@ export function TableCell({
                                 {selectedOption ? (
                                     <span
                                         className="px-2 py-1 rounded-md text-xs font-medium border"
-                                        style={{ backgroundColor: selectedOption.color, borderColor: "transparent" }}
+                                        style={{
+                                            backgroundColor: selectedOption.color,
+                                            borderColor: "transparent",
+                                            color: getTextColor(selectedOption.color)
+                                        }}
                                     >
                                         {selectedOption.label}
                                     </span>
@@ -186,9 +203,9 @@ export function TableCell({
                                                             <button
                                                                 key={c.value}
                                                                 className="w-6 h-6 rounded-full border"
-                                                                style={{ backgroundColor: c.value }}
+                                                                style={{ backgroundColor: c.text }}
                                                                 onClick={() =>
-                                                                    updateOptionInColumn(option.id, { color: c.value })
+                                                                    updateOptionInColumn(option.id, { color: c.text })
                                                                 }
                                                             />
                                                         ))}
@@ -311,7 +328,11 @@ export function TableCell({
                                             <span
                                                 key={opt.id}
                                                 className="px-1.5 py-0.5 rounded text-[10px] font-medium border whitespace-nowrap"
-                                                style={{ backgroundColor: opt.color, borderColor: "transparent" }}
+                                                style={{
+                                                    backgroundColor: opt.color,
+                                                    borderColor: "transparent",
+                                                    color: getTextColor(opt.color)
+                                                }}
                                             >
                                                 {opt.label}
                                             </span>
@@ -379,7 +400,7 @@ export function TableCell({
                                                     <PopoverContent className="w-36 p-2">
                                                         <div className="flex flex-wrap gap-1">
                                                             {OPTION_COLORS.map(c => (
-                                                                <button key={c.value} className="w-6 h-6 rounded-full border" style={{ backgroundColor: c.value }} onClick={() => updateOptionInColumn(option.id, { color: c.value })} />
+                                                                <button key={c.value} className="w-6 h-6 rounded-full border" style={{ backgroundColor: c.text }} onClick={() => updateOptionInColumn(option.id, { color: c.text })} />
                                                             ))}
                                                         </div>
                                                     </PopoverContent>

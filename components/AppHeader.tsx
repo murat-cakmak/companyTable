@@ -225,7 +225,7 @@ export function AppHeader({ currentUser, allCompanies = [] }: AppHeaderProps) {
                 {/* Notifications */}
                 <Popover>
                     <PopoverTrigger asChild>
-                        <Button variant="ghost" size="icon" className="relative text-zinc-500 hover:text-zinc-900 w-9 h-9">
+                        <Button variant="ghost" size="icon" className="relative text-zinc-500 hover:text-zinc-900 w-9 h-9" suppressHydrationWarning>
                             <Bell className="w-5 h-5" />
                             {notifications.length > 0 && (
                                 <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-zinc-900">

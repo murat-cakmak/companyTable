@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AppHeader } from "@/components/AppHeader";
 import { SubscriptionBanner } from "@/components/SubscriptionBanner";
+import { SubscriptionLockModal } from "@/components/SubscriptionLockModal";
 import { getAuthenticatedUser, getAllCompaniesForSwitcher } from "@/app/actions/auth";
 
 const geistSans = Geist({
@@ -50,7 +51,13 @@ export default async function RootLayout({
               allCompanies={allCompanies}
             />
             {currentUser.company && (
-              <SubscriptionBanner endDate={currentUser.company.subscriptionEndDate} />
+              <>
+                <SubscriptionBanner endDate={currentUser.company.subscriptionEndDate} />
+                <SubscriptionLockModal
+                  endDate={currentUser.company.subscriptionEndDate}
+                  role={currentUser.role}
+                />
+              </>
             )}
           </>
         )}

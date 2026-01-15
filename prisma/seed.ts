@@ -95,13 +95,14 @@ async function main() {
     const admin = await prisma.user.upsert({
         where: { email: 'mrtstab@gmail.com' },
         update: {
-            companyId: company.id, // Ensure linked to the correct company
+            companyId: company.id,
+            role: Role.SUPER_ADMIN,
         },
         create: {
             id: SEED_ADMIN_ID,
             email: 'mrtstab@gmail.com',
             name: 'Murat Çakmak',
-            role: Role.COMPANY_ADMIN,
+            role: Role.SUPER_ADMIN,
             companyId: company.id,
             passwordHash: '$2b$10$jUB7vPQVL0gjGyctZneZmeizsNuynLcZYgYu5McBzSL81vQ.NM4ry',
         },

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Plus, Layout, LayoutTemplate, Save, FilePlus, Trash2 } from "lucide-react";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
@@ -32,6 +33,16 @@ interface ExcelTableProps {
 export function ExcelTable({ googleDriveConfig }: ExcelTableProps) {
     const t = useTranslations('Table');
     const tCommon = useTranslations('Common');
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
+    // Helper to update URL params
+    const updateUrlSheetId = (id: string) => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('sheetId', id);
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    };
 
     const createNewTable = (columns?: Column[], rows?: Row[]): TableData => {
         const newTableId = `table-${generateId()}`;
@@ -92,7 +103,18 @@ export function ExcelTable({ googleDriveConfig }: ExcelTableProps) {
                 const data = await fetchCompanyData();
                 if (data && data.length > 0) {
                     setSheets(data);
-                    setActiveSheetId(data[0].id);
+
+                    // Check URL for sheetId
+                    const urlSheetId = searchParams.get('sheetId');
+                    const targetSheet = data.find(s => s.id === urlSheetId);
+
+                    if (targetSheet) {
+                        setActiveSheetId(targetSheet.id);
+                    } else {
+                        setActiveSheetId(data[0].id);
+                        // Sync URL if missing or invalid
+                        updateUrlSheetId(data[0].id);
+                    }
                 } else {
                     // Fallback to empty default if DB is empty
                     const defaultSheet = {
@@ -102,6 +124,7 @@ export function ExcelTable({ googleDriveConfig }: ExcelTableProps) {
                     };
                     setSheets([defaultSheet]);
                     setActiveSheetId(defaultSheet.id);
+                    updateUrlSheetId(defaultSheet.id);
                 }
             } catch (err) {
                 console.error("Failed to load", err);
@@ -132,6 +155,11 @@ export function ExcelTable({ googleDriveConfig }: ExcelTableProps) {
 
     const activeSheet = sheets.find((s) => s.id === activeSheetId) || sheets[0] || { id: 'loading', tables: [], name: 'Loading...' };
 
+    const handleSheetChange = (id: string) => {
+        setActiveSheetId(id);
+        updateUrlSheetId(id);
+    };
+
     const updateActiveSheet = (updates: Partial<Sheet>) => {
         setSheets((prev) =>
             prev.map((sheet) =>
@@ -152,6 +180,7 @@ export function ExcelTable({ googleDriveConfig }: ExcelTableProps) {
         };
         setSheets([...sheets, newSheet]);
         setActiveSheetId(newId);
+        updateUrlSheetId(newId);
     };
 
     const addTableToSheet = (templateColumns?: Column[], templateRows?: Row[]) => {
@@ -251,6 +280,7 @@ export function ExcelTable({ googleDriveConfig }: ExcelTableProps) {
             const newActiveIndex = index > 0 ? index - 1 : 0;
             if (newSheets[newActiveIndex]) {
                 setActiveSheetId(newSheets[newActiveIndex].id);
+                updateUrlSheetId(newSheets[newActiveIndex].id);
             }
         }
     };
@@ -411,7 +441,7 @@ export function ExcelTable({ googleDriveConfig }: ExcelTableProps) {
                                     sheet={sheet}
                                     isActive={activeSheetId === sheet.id}
                                     isEditing={editingSheetId === sheet.id}
-                                    onActivate={setActiveSheetId}
+                                    onActivate={handleSheetChange}
                                     onEditStart={setEditingSheetId}
                                     onRename={updateSheetName}
                                     onColorChange={updateSheetColor}

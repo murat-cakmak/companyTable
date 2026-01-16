@@ -293,8 +293,11 @@ export function SettingsForm({ initialSettings, plan, subscriptionEndDate }: Set
                                         <li className="pl-1">
                                             <strong>Create Client ID</strong>: Go to <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Credentials &gt; Create Credentials &gt; OAuth client ID</a>.
                                             <ul className="list-disc pl-5 mt-1 text-xs">
-                                                <li>Application type: <strong>Web application</strong>.</li>
+                                                <li>Application type: <strong>Web application</strong> (Important: Do NOT select "Desktop" or "Native").</li>
                                                 <li>Authorized JavaScript origins: <code>{typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}</code></li>
+                                                <li>
+                                                    <span className="text-amber-600 dark:text-amber-500 font-medium">Fix for "Storagerelay URI" error:</span> Ensure you chose "Web application" and added the correct origin.
+                                                </li>
                                                 <li>Copy the <strong>Client ID</strong>.</li>
                                             </ul>
                                         </li>

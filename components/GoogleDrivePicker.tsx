@@ -30,11 +30,10 @@ export function GoogleDrivePicker({ onSelect, children, config }: GoogleDrivePic
             return;
         }
 
-        openPicker({
+        const pickerConfig: any = {
             clientId: clientId,
             developerKey: apiKey,
             viewId: "DOCS",
-            // customViews: customViewsArray, // options
             showUploadView: true,
             showUploadFolders: true,
             supportDrives: true,
@@ -42,8 +41,9 @@ export function GoogleDrivePicker({ onSelect, children, config }: GoogleDrivePic
             appId: appId,
             setIncludeFolders: true,
             setSelectFolderEnabled: true,
-            // scopes: ['https://www.googleapis.com/auth/drive.file'],
-            callbackFunction: (data) => {
+            // Requesting 'drive.file' scope is critical for Uploads to work
+            scopes: ['https://www.googleapis.com/auth/drive.file'],
+            callbackFunction: (data: any) => {
                 if (data.action === 'picked') {
                     const files = data.docs.map((doc: any) => ({
                         id: doc.id,
@@ -55,11 +55,11 @@ export function GoogleDrivePicker({ onSelect, children, config }: GoogleDrivePic
                     }));
                     onSelect(files);
                     toast.success(`${files.length} file(s) selected from Drive`);
-                } else if (data.action === 'cancel') {
-                    // User cancelled
                 }
             },
-        });
+        };
+
+        openPicker(pickerConfig);
     };
 
     return (

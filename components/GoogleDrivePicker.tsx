@@ -40,7 +40,9 @@ export function GoogleDrivePicker({ onSelect, children, config }: GoogleDrivePic
             supportDrives: true,
             multiselect: true,
             appId: appId,
-            // scopes: ['https://www.googleapis.com/auth/drive.file'], // Strict scope
+            setIncludeFolders: true,
+            setSelectFolderEnabled: true,
+            // scopes: ['https://www.googleapis.com/auth/drive.file'],
             callbackFunction: (data) => {
                 if (data.action === 'picked') {
                     const files = data.docs.map((doc: any) => ({

@@ -537,23 +537,7 @@ export function TableCell({
                                         <label className="text-xs font-medium text-zinc-500">{t('add')}</label>
 
                                         {/* File Upload */}
-                                        <Input
-                                            type="file"
-                                            className="h-8 text-xs bg-white dark:bg-black"
-                                            onChange={(e) => {
-                                                const file = e.target.files?.[0];
-                                                if (file) {
-                                                    addAttachment({ name: file.name, url: URL.createObjectURL(file), type: 'file' });
-                                                    // Reset input
-                                                    e.target.value = '';
-                                                }
-                                            }}
-                                        />
 
-                                        <div className="relative py-1">
-                                            <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-                                            <div className="relative flex justify-center text-xs uppercase"><span className="bg-zinc-50 dark:bg-zinc-900 px-2 text-muted-foreground">{t('or')}</span></div>
-                                        </div>
 
                                         {/* Link Input */}
                                         <div className="flex gap-2">

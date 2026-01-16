@@ -29,5 +29,12 @@ To transform the basic table into a dynamic, spreadsheet-like application with r
 -   [x] **Layout**: Forced full-viewport height structure.
 -   [x] **Hydration**: Resolved server/client mismatches in DnD components.
 
+### 6. Google Drive Integration (New)
+- [x] **Picker Component**: Create `GoogleDrivePicker.tsx` wrapping the Google Picker API.
+- [x] **Cell Integration**: Update `Cell.tsx` to include "Google Drive" button in file popover.
+- [x] **Configuration**: Add Settings inputs for Google Client ID, API Key, and App ID.
+- [x] **Documentation**: Add setup guide in the Settings page for obtaining credentials.
+- [x] **Access Control**: Ensure credentials are scoped per company using existing settings JSON.
+
 ## Verification
 All planned features have been implemented and manually verified. See `walkthrough.md` for details.

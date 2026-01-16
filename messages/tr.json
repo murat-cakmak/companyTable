@@ -249,7 +249,7 @@
         "addTestUsers": "Test Kullanıcıları Ekle",
         "addTestUsersDesc": "OAuth izin ekranı bölümünde \"Test users\" (Test kullanıcıları) kısmını bulun:",
         "addTestUsersStep1": "<link>+ ADD USERS</link> butonuna tıklayın.",
-        "addTestUsersStep2": "Giriş yapmaya çalıştığınız e-posta adresini ekleyin (örn. <code>mrtstab@gmail.com</code>).",
+        "addTestUsersStep2": "Giriş yapmaya çalıştığınız e-posta adresini ekleyin (örn. <code>admin@gmail.com</code>).",
         "addTestUsersFix": "\"Uygulama doğrulanmadı\" / 403 hatası çözümü:",
         "addTestUsersFixDesc": "\"Test\" modundayken, yalnızca eklenen kullanıcılar erişebilir.",
         "createClientId": "Client ID Oluştur",

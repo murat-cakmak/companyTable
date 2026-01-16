@@ -249,7 +249,7 @@
         "addTestUsers": "Add Test Users",
         "addTestUsersDesc": "In the OAuth consent screen section, look for \"Test users\":",
         "addTestUsersStep1": "Click <link>+ ADD USERS</link>.",
-        "addTestUsersStep2": "Add the email address you are trying to login with (e.g., <code>mrtstab@gmail.com</code>).",
+        "addTestUsersStep2": "Add the email address you are trying to login with (e.g., <code>admin@gmail.com</code>).",
         "addTestUsersFix": "Fix for \"App not verified\" / 403 error:",
         "addTestUsersFixDesc": "While in \"Testing\" mode, only added users can access.",
         "createClientId": "Create Client ID",

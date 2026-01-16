@@ -1,5 +1,7 @@
 "use server";
 
+import bcrypt from 'bcryptjs';
+
 import { prisma } from "@/lib/prisma";
 import { Role } from "@prisma/client";
 import { revalidatePath } from "next/cache";
@@ -84,10 +86,7 @@ export async function createCompany(data: { name: string; plan: string; subscrip
             } else {
                 // Create new user with Temp Password
                 tempPassword = generatePassword();
-                // In a real app, hash this with bcrypt. 
-                // Using a prefix to simulate hashing for now or storing plain for development visibility if needed, 
-                // but let's assume we store it functionally correct for the requirement.
-                const passwordHash = `TEMP_HASH:${tempPassword}`;
+                const passwordHash = await bcrypt.hash(tempPassword, 10);
 
                 await tx.user.create({
                     data: {

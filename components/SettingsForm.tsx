@@ -9,7 +9,9 @@ import {
     CreditCard,
     Save,
     Image as ImageIcon,
-    LayoutTemplate
+    LayoutTemplate,
+    Cloud,
+    Key
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
@@ -25,7 +27,7 @@ export function SettingsForm({ initialSettings, plan, subscriptionEndDate }: Set
     const tCommon = useTranslations('Common');
     const [settings, setSettings] = useState<CompanySettings>(initialSettings);
     const [loading, setLoading] = useState(false);
-    const [activeTab, setActiveTab] = useState<'branding' | 'preferences'>('branding');
+    const [activeTab, setActiveTab] = useState<'branding' | 'preferences' | 'integrations'>('branding');
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -71,6 +73,18 @@ export function SettingsForm({ initialSettings, plan, subscriptionEndDate }: Set
                     <Globe className="w-4 h-4" />
                     {t('regionalPreferences')}
                 </button>
+                <button
+                    onClick={() => setActiveTab('integrations')}
+                    className={cn(
+                        "w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors",
+                        activeTab === 'integrations'
+                            ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300'
+                            : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800'
+                    )}
+                >
+                    <Cloud className="w-4 h-4" />
+                    Integrations
+                </button>
 
                 <div className="pt-6 mt-6 border-t border-zinc-100 dark:border-zinc-800">
                     <div className="px-4">
@@ -97,12 +111,14 @@ export function SettingsForm({ initialSettings, plan, subscriptionEndDate }: Set
                     <div className="flex items-center justify-between mb-8">
                         <div>
                             <h2 className="text-xl font-bold">
-                                {activeTab === 'branding' ? t('companyBranding') : t('preferences')}
+                                {activeTab === 'branding' ? t('companyBranding') : activeTab === 'preferences' ? t('preferences') : 'Integrations'}
                             </h2>
                             <p className="text-sm text-zinc-500 mt-1">
                                 {activeTab === 'branding'
                                     ? t('brandingDesc')
-                                    : t('regionalPreferencesDesc')}
+                                    : activeTab === 'preferences'
+                                        ? t('regionalPreferencesDesc')
+                                        : 'Connect third-party services.'}
                             </p>
                         </div>
                         <Button type="submit" disabled={loading} className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2">
@@ -191,6 +207,54 @@ export function SettingsForm({ initialSettings, plan, subscriptionEndDate }: Set
                                     <option value="TRY">TRY (₺)</option>
                                     <option value="GBP">GBP (£)</option>
                                 </select>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'integrations' && (
+                        <div className="space-y-6">
+                            <div className="space-y-4 border p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Cloud className="w-5 h-5 text-indigo-600" />
+                                    <h3 className="font-semibold text-sm">Google Drive Configuration</h3>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium flex items-center gap-2">Client ID <span className="text-red-500">*</span></label>
+                                    <input
+                                        type="text"
+                                        value={settings.googleDrive?.clientId || ""}
+                                        onChange={e => setSettings(prev => ({ ...prev, googleDrive: { ...prev.googleDrive, clientId: e.target.value } }))}
+                                        className="w-full p-2 border rounded-md text-sm bg-transparent focus:ring-2 focus:ring-indigo-500/20 outline-none"
+                                        placeholder="Enter Google Client ID"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium flex items-center gap-2">API Key <span className="text-red-500">*</span></label>
+                                    <input
+                                        type="password"
+                                        value={settings.googleDrive?.apiKey || ""}
+                                        onChange={e => setSettings(prev => ({ ...prev, googleDrive: { ...prev.googleDrive, apiKey: e.target.value } }))}
+                                        className="w-full p-2 border rounded-md text-sm bg-transparent focus:ring-2 focus:ring-indigo-500/20 outline-none"
+                                        placeholder="Enter Google API Key"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium flex items-center gap-2">App ID (Project Number) <span className="text-red-500">*</span></label>
+                                    <input
+                                        type="text"
+                                        value={settings.googleDrive?.appId || ""}
+                                        onChange={e => setSettings(prev => ({ ...prev, googleDrive: { ...prev.googleDrive, appId: e.target.value } }))}
+                                        className="w-full p-2 border rounded-md text-sm bg-transparent focus:ring-2 focus:ring-indigo-500/20 outline-none"
+                                        placeholder="Enter Google Project Number"
+                                    />
+                                </div>
+
+                                <div className="text-xs text-zinc-500 pt-2">
+                                    Required for the Google Drive file picker to function. You can obtain these from the Google Cloud Console.
+                                </div>
                             </div>
                         </div>
                     )}

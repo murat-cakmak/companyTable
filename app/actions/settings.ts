@@ -9,6 +9,11 @@ export interface CompanySettings {
     brandColor?: string;
     dateFormat?: string;
     currency?: string;
+    googleDrive?: {
+        clientId?: string;
+        apiKey?: string;
+        appId?: string;
+    };
 }
 
 export async function fetchCompanySettings() {

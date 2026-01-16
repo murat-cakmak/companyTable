@@ -22,8 +22,14 @@ import {
     DEFAULT_TBL1_COLUMNS, DEFAULT_TBL1_ROWS,
     DEFAULT_TBL2_COLUMNS, DEFAULT_TBL2_ROWS
 } from "@/lib/constants";
+import { TableProvider } from "@/lib/TableContext";
+import { GoogleDriveConfig } from "@/components/GoogleDrivePicker";
 
-export function ExcelTable() {
+interface ExcelTableProps {
+    googleDriveConfig?: GoogleDriveConfig;
+}
+
+export function ExcelTable({ googleDriveConfig }: ExcelTableProps) {
     const t = useTranslations('Table');
     const tCommon = useTranslations('Common');
 
@@ -277,150 +283,152 @@ export function ExcelTable() {
     }
 
     return (
-        <div className="flex flex-col h-full w-full gap-2 pb-14">
-            <div className="flex items-center justify-between px-1 mt-[10px]">
-                <h2 className="text-lg font-semibold flex items-center gap-2">
-                    <Layout className="w-5 h-5" />
-                    {t('workspace')}
-                </h2>
-                <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground mr-2">
-                        {t('tablesCount', { count: activeSheet.tables.length, limit: 3 })}
-                    </span>
+        <TableProvider googleDriveConfig={googleDriveConfig}>
+            <div className="flex flex-col h-full w-full gap-2 pb-14">
+                <div className="flex items-center justify-between px-1 mt-[10px]">
+                    <h2 className="text-lg font-semibold flex items-center gap-2">
+                        <Layout className="w-5 h-5" />
+                        {t('workspace')}
+                    </h2>
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground mr-2">
+                            {t('tablesCount', { count: activeSheet.tables.length, limit: 3 })}
+                        </span>
 
-                    {/* Template Button */}
-                    <Button
-                        variant="default"
-                        size="sm"
-                        className="gap-2 bg-green-600 hover:bg-green-700 text-white"
-                        onClick={handleSave}
-                        disabled={isSaving}
-                    >
-                        <Save className="w-4 h-4" />
-                        {isSaving ? t('saving') : t('saveChanges')}
-                    </Button>
+                        {/* Template Button */}
+                        <Button
+                            variant="default"
+                            size="sm"
+                            className="gap-2 bg-green-600 hover:bg-green-700 text-white"
+                            onClick={handleSave}
+                            disabled={isSaving}
+                        >
+                            <Save className="w-4 h-4" />
+                            {isSaving ? t('saving') : t('saveChanges')}
+                        </Button>
 
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button variant="outline" size="sm" className="gap-2 text-zinc-600 dark:text-zinc-400">
-                                <LayoutTemplate className="w-4 h-4" /> {t('templates')}
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-72 p-3" align="end">
-                            <div className="grid gap-4">
-                                <div className="space-y-2">
-                                    <h4 className="font-medium leading-none text-sm">{t('saveCurrent')}</h4>
-                                    <div className="flex gap-2">
-                                        <Input
-                                            placeholder={t('templateNamePlaceholder')}
-                                            className="h-8 text-xs"
-                                            value={templateName}
-                                            onChange={(e) => setTemplateName(e.target.value)}
-                                        />
-                                        <Button size="sm" className="h-8 px-2" onClick={saveCurrentAsTemplate}>
-                                            <Save className="w-3 h-3" />
-                                        </Button>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button variant="outline" size="sm" className="gap-2 text-zinc-600 dark:text-zinc-400">
+                                    <LayoutTemplate className="w-4 h-4" /> {t('templates')}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-72 p-3" align="end">
+                                <div className="grid gap-4">
+                                    <div className="space-y-2">
+                                        <h4 className="font-medium leading-none text-sm">{t('saveCurrent')}</h4>
+                                        <div className="flex gap-2">
+                                            <Input
+                                                placeholder={t('templateNamePlaceholder')}
+                                                className="h-8 text-xs"
+                                                value={templateName}
+                                                onChange={(e) => setTemplateName(e.target.value)}
+                                            />
+                                            <Button size="sm" className="h-8 px-2" onClick={saveCurrentAsTemplate}>
+                                                <Save className="w-3 h-3" />
+                                            </Button>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="space-y-2 pt-2 border-t">
-                                    <h4 className="font-medium leading-none text-sm">{t('loadTemplate')}</h4>
-                                    <div className="grid gap-1 max-h-[200px] overflow-y-auto">
-                                        {savedTemplates.map(template => (
-                                            <div key={template.id} className="flex items-center gap-1 group/template">
-                                                <Button
-                                                    variant="ghost"
-                                                    className="justify-start h-8 text-xs font-normal flex-1"
-                                                    onClick={() => loadTemplate(template)}
-                                                    disabled={activeSheet.tables.length >= 3}
-                                                >
-                                                    <FilePlus className="w-3 h-3 mr-2" />
-                                                    {template.id === 'default-template' ? t('defaultTemplate') : template.name}
-                                                </Button>
-                                                {template.id !== 'default-template' && (
+                                    <div className="space-y-2 pt-2 border-t">
+                                        <h4 className="font-medium leading-none text-sm">{t('loadTemplate')}</h4>
+                                        <div className="grid gap-1 max-h-[200px] overflow-y-auto">
+                                            {savedTemplates.map(template => (
+                                                <div key={template.id} className="flex items-center gap-1 group/template">
                                                     <Button
                                                         variant="ghost"
-                                                        size="icon"
-                                                        className="h-8 w-8 text-muted-foreground hover:text-red-500 opacity-0 group-hover/template:opacity-100 transition-opacity"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            deleteTemplate(template.id);
-                                                        }}
+                                                        className="justify-start h-8 text-xs font-normal flex-1"
+                                                        onClick={() => loadTemplate(template)}
+                                                        disabled={activeSheet.tables.length >= 3}
                                                     >
-                                                        <Trash2 className="w-3 h-3" />
+                                                        <FilePlus className="w-3 h-3 mr-2" />
+                                                        {template.id === 'default-template' ? t('defaultTemplate') : template.name}
                                                     </Button>
-                                                )}
-                                            </div>
-                                        ))}
-                                        {savedTemplates.length === 0 && <span className="text-xs text-muted-foreground p-1">{t('noTemplates')}</span>}
+                                                    {template.id !== 'default-template' && (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="h-8 w-8 text-muted-foreground hover:text-red-500 opacity-0 group-hover/template:opacity-100 transition-opacity"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                deleteTemplate(template.id);
+                                                            }}
+                                                        >
+                                                            <Trash2 className="w-3 h-3" />
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            ))}
+                                            {savedTemplates.length === 0 && <span className="text-xs text-muted-foreground p-1">{t('noTemplates')}</span>}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </PopoverContent>
-                    </Popover>
+                            </PopoverContent>
+                        </Popover>
 
-                    <Button
-                        onClick={() => addTableToSheet()}
-                        variant="default"
-                        size="sm"
-                        className="gap-2"
-                        disabled={activeSheet.tables.length >= 3}
-                    >
-                        <Plus className="w-4 h-4" /> {t('addTable')}
-                    </Button>
-                </div>
-            </div>
-
-            <div className="flex-1 overflow-hidden">
-                <div className="h-full flex flex-col gap-4">
-                    {activeSheet.tables.map((table) => (
-                        <div
-                            key={table.id}
-                            className="flex-1 w-full min-h-0 border-b last:border-b-0 transition-all duration-300"
+                        <Button
+                            onClick={() => addTableToSheet()}
+                            variant="default"
+                            size="sm"
+                            className="gap-2"
+                            disabled={activeSheet.tables.length >= 3}
                         >
-                            <SingleTable
-                                tableData={table}
-                                onUpdate={updateTable}
-                                onDelete={activeSheet.tables.length > 1 ? deleteTable : undefined}
-                            />
-                        </div>
-                    ))}
+                            <Plus className="w-4 h-4" /> {t('addTable')}
+                        </Button>
+                    </div>
+                </div>
+
+                <div className="flex-1 overflow-hidden">
+                    <div className="h-full flex flex-col gap-4">
+                        {activeSheet.tables.map((table) => (
+                            <div
+                                key={table.id}
+                                className="flex-1 w-full min-h-0 border-b last:border-b-0 transition-all duration-300"
+                            >
+                                <SingleTable
+                                    tableData={table}
+                                    onUpdate={updateTable}
+                                    onDelete={activeSheet.tables.length > 1 ? deleteTable : undefined}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Sheets Bar */}
+                <div className="fixed bottom-0 left-0 right-0 border-t divide-x overflow-x-auto bg-zinc-50 dark:bg-zinc-900 z-50 shadow-[0_-1px_3px_rgba(0,0,0,0.1)] h-12 flex items-center">
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
+                    >
+                        <SortableContext
+                            items={sheets.map(s => s.id)}
+                            strategy={horizontalListSortingStrategy}
+                        >
+                            {sheets.map((sheet) => (
+                                <SortableSheetTab
+                                    key={sheet.id}
+                                    sheet={sheet}
+                                    isActive={activeSheetId === sheet.id}
+                                    isEditing={editingSheetId === sheet.id}
+                                    onActivate={setActiveSheetId}
+                                    onEditStart={setEditingSheetId}
+                                    onRename={updateSheetName}
+                                    onColorChange={updateSheetColor}
+                                    onDelete={deleteSheet}
+                                />
+                            ))}
+                        </SortableContext>
+                    </DndContext>
+                    <button
+                        onClick={addSheet}
+                        className="px-4 py-2 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800 h-full flex items-center justify-center border-l bg-white/50 dark:bg-black/20"
+                        title={t('addSheet')}
+                    >
+                        <Plus className="w-4 h-4" />
+                    </button>
                 </div>
             </div>
-
-            {/* Sheets Bar */}
-            <div className="fixed bottom-0 left-0 right-0 border-t divide-x overflow-x-auto bg-zinc-50 dark:bg-zinc-900 z-50 shadow-[0_-1px_3px_rgba(0,0,0,0.1)] h-12 flex items-center">
-                <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragEnd={handleDragEnd}
-                >
-                    <SortableContext
-                        items={sheets.map(s => s.id)}
-                        strategy={horizontalListSortingStrategy}
-                    >
-                        {sheets.map((sheet) => (
-                            <SortableSheetTab
-                                key={sheet.id}
-                                sheet={sheet}
-                                isActive={activeSheetId === sheet.id}
-                                isEditing={editingSheetId === sheet.id}
-                                onActivate={setActiveSheetId}
-                                onEditStart={setEditingSheetId}
-                                onRename={updateSheetName}
-                                onColorChange={updateSheetColor}
-                                onDelete={deleteSheet}
-                            />
-                        ))}
-                    </SortableContext>
-                </DndContext>
-                <button
-                    onClick={addSheet}
-                    className="px-4 py-2 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800 h-full flex items-center justify-center border-l bg-white/50 dark:bg-black/20"
-                    title={t('addSheet')}
-                >
-                    <Plus className="w-4 h-4" />
-                </button>
-            </div>
-        </div>
+        </TableProvider>
     );
 }

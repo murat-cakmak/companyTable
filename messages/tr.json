@@ -231,6 +231,7 @@
         "attachmentDesc": "Bir dosya yükleyin veya URL girin.",
         "add": "Ekle",
         "or": "Veya",
+        "drive": "Google Drive",
         "clear": "TEM"
     }
 }

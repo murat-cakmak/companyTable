@@ -231,6 +231,7 @@
         "attachmentDesc": "Upload a file or enter a URL.",
         "add": "Add",
         "or": "Or",
+        "drive": "Google Drive",
         "clear": "CLR"
     }
 }

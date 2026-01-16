@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { Settings2, Palette, ChevronDown, Image as ImageIcon, Plus, Check, X, Sparkles, Type, Trash2, ExternalLink, Link as LinkIcon, FileText } from "lucide-react";
+import { Settings2, Palette, ChevronDown, Image as ImageIcon, Plus, Check, X, Sparkles, Type, Trash2, ExternalLink, Link as LinkIcon, FileText, Cloud } from "lucide-react";
+import { GoogleDrivePicker } from "@/components/GoogleDrivePicker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -581,6 +582,20 @@ export function TableCell({
                                                 <Plus className="w-4 h-4" />
                                             </Button>
                                         </div>
+
+                                        <div className="relative py-1">
+                                            <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
+                                            <div className="relative flex justify-center text-xs uppercase"><span className="bg-zinc-50 dark:bg-zinc-900 px-2 text-muted-foreground">{t('or')}</span></div>
+                                        </div>
+
+                                        <GoogleDrivePicker onSelect={(files) => {
+                                            files.forEach(f => addAttachment({ name: f.name, url: f.embedUrl || f.url, type: 'drive' }));
+                                        }}>
+                                            <Button variant="outline" className="w-full h-8 flex gap-2 items-center justify-center text-xs">
+                                                <Cloud className="w-4 h-4" />
+                                                {t('drive')}
+                                            </Button>
+                                        </GoogleDrivePicker>
                                     </div>
                                 </div>
                             </div>

@@ -90,6 +90,7 @@
         "passChanged": "Password changed successfully!",
         "passChangeError": "Error changing password",
         "saving": "Saving...",
+        "saveChanges": "Save Changes",
         "updating": "Updating..."
     },
     "Settings": {

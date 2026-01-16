@@ -90,6 +90,7 @@
         "passChanged": "Şifre başarıyla değiştirildi!",
         "passChangeError": "Şifre değiştirilirken hata oluştu",
         "saving": "Kaydediliyor...",
+        "saveChanges": "Değişiklikleri Kaydet",
         "updating": "Güncelleniyor..."
     },
     "Settings": {

@@ -26,6 +26,7 @@ interface SettingsFormProps {
 
 export function SettingsForm({ initialSettings, plan, subscriptionEndDate }: SettingsFormProps) {
     const t = useTranslations('Settings');
+    const tGuide = useTranslations('SetupGuide');
     const tCommon = useTranslations('Common');
     const [settings, setSettings] = useState<CompanySettings>(initialSettings);
     const [loading, setLoading] = useState(false);
@@ -262,19 +263,23 @@ export function SettingsForm({ initialSettings, plan, subscriptionEndDate }: Set
                             <div className="border rounded-lg p-4 space-y-4">
                                 <h3 className="font-semibold text-sm flex items-center gap-2">
                                     <BookOpen className="w-4 h-4 text-indigo-600" />
-                                    Setup Guide
+                                    {tGuide('title')}
                                 </h3>
 
                                 <div className="text-sm space-y-4 text-zinc-600 dark:text-zinc-400">
-                                    <p>To obtain these credentials, follow these steps in the Google Cloud Console:</p>
+                                    <p>{tGuide('intro')}</p>
 
                                     <ol className="list-decimal pl-4 space-y-3">
                                         <li className="pl-1">
-                                            <strong>Create a Project</strong>: Go to the <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline inline-flex items-center gap-0.5">Google Cloud Console <ExternalLink className="w-3 h-3" /></a> and create a new project.
+                                            <strong>{tGuide('createProject')}</strong>: {tGuide.rich('createProjectDesc', {
+                                                link: (chunks) => <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline inline-flex items-center gap-0.5">Google Cloud Console <ExternalLink className="w-3 h-3" /></a>
+                                            })}
                                         </li>
 
                                         <li className="pl-1">
-                                            <strong>Enable APIs</strong>: Go to <a href="https://console.cloud.google.com/apis/library" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">APIs & Services &gt; Library</a>. Search for and enable:
+                                            <strong>{tGuide('enableApis')}</strong>: {tGuide.rich('enableApisDesc', {
+                                                link: (chunks) => <a href="https://console.cloud.google.com/apis/library" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">APIs & Services &gt; Library</a>
+                                            })}
                                             <ul className="list-disc pl-5 mt-1 text-xs">
                                                 <li>Google Drive API</li>
                                                 <li>Google Picker API</li>
@@ -282,48 +287,56 @@ export function SettingsForm({ initialSettings, plan, subscriptionEndDate }: Set
                                         </li>
 
                                         <li className="pl-1">
-                                            <strong>Configure OAuth Consent</strong>: Go to <a href="https://console.cloud.google.com/apis/credentials/consent" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">APIs & Services &gt; OAuth consent screen</a>.
+                                            <strong>{tGuide('configureAuth')}</strong>: {tGuide.rich('configureAuthDesc', {
+                                                link: (chunks) => <a href="https://console.cloud.google.com/apis/credentials/consent" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">APIs & Services &gt; OAuth consent screen</a>
+                                            })}
                                             <ul className="list-disc pl-5 mt-1 text-xs">
-                                                <li>Select <strong>External</strong> (or Internal if using Google Workspace).</li>
-                                                <li>Fill in the required fields (App name, User support email).</li>
-                                                <li>Add your authorized domains (e.g., <code>localhost</code> for dev).</li>
+                                                <li>{tGuide.rich('configureAuthStep1', { b: (chunks) => <strong>{chunks}</strong> })}</li>
+                                                <li>{tGuide('configureAuthStep2')}</li>
+                                                <li>{tGuide.rich('configureAuthStep3', { code: (chunks) => <code>{chunks}</code> })}</li>
                                             </ul>
                                         </li>
 
                                         <li className="pl-1">
-                                            <strong>Add Test Users</strong>: In the OAuth consent screen section, look for "Test users":
+                                            <strong>{tGuide('addTestUsers')}</strong>: {tGuide('addTestUsersDesc')}
                                             <ul className="list-disc pl-5 mt-1 text-xs">
-                                                <li>Click <strong>+ ADD USERS</strong>.</li>
-                                                <li>Add the email address you are trying to login with (e.g., <code>mrtstab@gmail.com</code>).</li>
-                                                <li><span className="text-amber-600 dark:text-amber-500 font-medium">Fix for "App not verified" / 403 error:</span> While in "Testing" mode, only added users can access.</li>
+                                                <li>{tGuide.rich('addTestUsersStep1', { b: (chunks) => <strong>{chunks}</strong> })}</li>
+                                                <li>{tGuide.rich('addTestUsersStep2', { code: (chunks) => <code>{chunks}</code> })}</li>
+                                                <li><span className="text-amber-600 dark:text-amber-500 font-medium">{tGuide('addTestUsersFix')}</span> {tGuide('addTestUsersFixDesc')}</li>
                                             </ul>
                                         </li>
 
                                         <li className="pl-1">
-                                            <strong>Create Client ID</strong>: Go to <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Credentials &gt; Create Credentials &gt; OAuth client ID</a>.
+                                            <strong>{tGuide('createClientId')}</strong>: {tGuide.rich('createClientIdDesc', {
+                                                link: (chunks) => <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Credentials &gt; Create Credentials &gt; OAuth client ID</a>
+                                            })}
                                             <ul className="list-disc pl-5 mt-1 text-xs">
-                                                <li>Application type: <strong>Web application</strong> (Important: Do NOT select "Desktop" or "Native").</li>
-                                                <li>Authorized JavaScript origins: <code>{typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}</code></li>
+                                                <li>{tGuide.rich('createClientIdStep1', { b: (chunks) => <strong>{chunks}</strong> })}</li>
+                                                <li>{tGuide('createClientIdStep2')} <code>{typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}</code></li>
                                                 <li>
-                                                    <span className="text-amber-600 dark:text-amber-500 font-medium">Fix for "Storagerelay URI" error:</span> Ensure you chose "Web application" and added the correct origin.
+                                                    <span className="text-amber-600 dark:text-amber-500 font-medium">{tGuide('createClientIdFix')}</span> {tGuide('createClientIdFixDesc')}
                                                 </li>
-                                                <li>Copy the <strong>Client ID</strong>.</li>
+                                                <li>{tGuide.rich('createClientIdStep3', { b: (chunks) => <strong>{chunks}</strong> })}</li>
                                             </ul>
                                         </li>
 
                                         <li className="pl-1">
-                                            <strong>Create API Key</strong>: Go to <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Credentials &gt; Create Credentials &gt; API key</a>.
+                                            <strong>{tGuide('createApiKey')}</strong>: {tGuide.rich('createApiKeyDesc', {
+                                                link: (chunks) => <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Credentials &gt; Create Credentials &gt; API key</a>
+                                            })}
                                             <ul className="list-disc pl-5 mt-1 text-xs">
-                                                <li>Copy the <strong>API Key</strong>.</li>
-                                                <li>(Recommended) Restrict the key to "Google Drive API" and "Google Picker API".</li>
+                                                <li>{tGuide.rich('createApiKeyStep1', { b: (chunks) => <strong>{chunks}</strong> })}</li>
+                                                <li>{tGuide('createApiKeyStep2')}</li>
                                             </ul>
                                         </li>
 
                                         <li className="pl-1">
-                                            <strong>Get App ID</strong>: Go to the <a href="https://console.cloud.google.com/welcome" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Dashboard</a>.
+                                            <strong>{tGuide('getAppId')}</strong>: {tGuide.rich('getAppIdDesc', {
+                                                link: (chunks) => <a href="https://console.cloud.google.com/welcome" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Dashboard</a>
+                                            })}
                                             <ul className="list-disc pl-5 mt-1 text-xs">
-                                                <li>Look for <strong>Project Number</strong> (this is your App ID).</li>
-                                                <li>Copy the <strong>Project Number</strong>.</li>
+                                                <li>{tGuide.rich('getAppIdStep1', { b: (chunks) => <strong>{chunks}</strong> })}</li>
+                                                <li>{tGuide.rich('getAppIdStep2', { b: (chunks) => <strong>{chunks}</strong> })}</li>
                                             </ul>
                                         </li>
                                     </ol>

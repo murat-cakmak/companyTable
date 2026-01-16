@@ -11,7 +11,9 @@ import {
     Image as ImageIcon,
     LayoutTemplate,
     Cloud,
-    Key
+    Key,
+    ExternalLink,
+    BookOpen
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
@@ -253,7 +255,66 @@ export function SettingsForm({ initialSettings, plan, subscriptionEndDate }: Set
                                 </div>
 
                                 <div className="text-xs text-zinc-500 pt-2">
-                                    Required for the Google Drive file picker to function. You can obtain these from the Google Cloud Console.
+                                    Required for the Google Drive file picker to function.
+                                </div>
+                            </div>
+
+                            <div className="border rounded-lg p-4 space-y-4">
+                                <h3 className="font-semibold text-sm flex items-center gap-2">
+                                    <BookOpen className="w-4 h-4 text-indigo-600" />
+                                    Setup Guide
+                                </h3>
+
+                                <div className="text-sm space-y-4 text-zinc-600 dark:text-zinc-400">
+                                    <p>To obtain these credentials, follow these steps in the Google Cloud Console:</p>
+
+                                    <ol className="list-decimal pl-4 space-y-3">
+                                        <li className="pl-1">
+                                            <strong>Create a Project</strong>: Go to the <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline inline-flex items-center gap-0.5">Google Cloud Console <ExternalLink className="w-3 h-3" /></a> and create a new project.
+                                        </li>
+
+                                        <li className="pl-1">
+                                            <strong>Enable APIs</strong>: Go to <a href="https://console.cloud.google.com/apis/library" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">APIs & Services &gt; Library</a>. Search for and enable:
+                                            <ul className="list-disc pl-5 mt-1 text-xs">
+                                                <li>Google Drive API</li>
+                                                <li>Google Picker API</li>
+                                            </ul>
+                                        </li>
+
+                                        <li className="pl-1">
+                                            <strong>Configure OAuth Consent</strong>: Go to <a href="https://console.cloud.google.com/apis/credentials/consent" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">APIs & Services &gt; OAuth consent screen</a>.
+                                            <ul className="list-disc pl-5 mt-1 text-xs">
+                                                <li>Select <strong>External</strong> (or Internal if using Google Workspace).</li>
+                                                <li>Fill in the required fields (App name, User support email).</li>
+                                                <li>Add your authorized domains (e.g., <code>localhost</code> for dev).</li>
+                                            </ul>
+                                        </li>
+
+                                        <li className="pl-1">
+                                            <strong>Create Client ID</strong>: Go to <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Credentials &gt; Create Credentials &gt; OAuth client ID</a>.
+                                            <ul className="list-disc pl-5 mt-1 text-xs">
+                                                <li>Application type: <strong>Web application</strong>.</li>
+                                                <li>Authorized JavaScript origins: <code>{typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}</code></li>
+                                                <li>Copy the <strong>Client ID</strong>.</li>
+                                            </ul>
+                                        </li>
+
+                                        <li className="pl-1">
+                                            <strong>Create API Key</strong>: Go to <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Credentials &gt; Create Credentials &gt; API key</a>.
+                                            <ul className="list-disc pl-5 mt-1 text-xs">
+                                                <li>Copy the <strong>API Key</strong>.</li>
+                                                <li>(Recommended) Restrict the key to "Google Drive API" and "Google Picker API".</li>
+                                            </ul>
+                                        </li>
+
+                                        <li className="pl-1">
+                                            <strong>Get App ID</strong>: Go to the <a href="https://console.cloud.google.com/welcome" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Dashboard</a>.
+                                            <ul className="list-disc pl-5 mt-1 text-xs">
+                                                <li>Look for <strong>Project Number</strong> (this is your App ID).</li>
+                                                <li>Copy the <strong>Project Number</strong>.</li>
+                                            </ul>
+                                        </li>
+                                    </ol>
                                 </div>
                             </div>
                         </div>

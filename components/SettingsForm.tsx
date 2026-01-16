@@ -291,6 +291,15 @@ export function SettingsForm({ initialSettings, plan, subscriptionEndDate }: Set
                                         </li>
 
                                         <li className="pl-1">
+                                            <strong>Add Test Users</strong>: In the OAuth consent screen section, look for "Test users":
+                                            <ul className="list-disc pl-5 mt-1 text-xs">
+                                                <li>Click <strong>+ ADD USERS</strong>.</li>
+                                                <li>Add the email address you are trying to login with (e.g., <code>mrtstab@gmail.com</code>).</li>
+                                                <li><span className="text-amber-600 dark:text-amber-500 font-medium">Fix for "App not verified" / 403 error:</span> While in "Testing" mode, only added users can access.</li>
+                                            </ul>
+                                        </li>
+
+                                        <li className="pl-1">
                                             <strong>Create Client ID</strong>: Go to <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Credentials &gt; Create Credentials &gt; OAuth client ID</a>.
                                             <ul className="list-disc pl-5 mt-1 text-xs">
                                                 <li>Application type: <strong>Web application</strong> (Important: Do NOT select "Desktop" or "Native").</li>
